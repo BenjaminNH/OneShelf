@@ -303,46 +303,89 @@ class _ActionRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FilledButton.icon(
+          child: _ActionButton(
             onPressed: onPlay,
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Play now'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              backgroundColor: AppPalette.accent,
-              foregroundColor: AppPalette.bg,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
-            ),
+            icon: Icons.play_arrow_rounded,
+            label: 'Play now',
+            filled: true,
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: OutlinedButton.icon(
+          child: _ActionButton(
             onPressed: hasResume ? onContinuePlay : null,
-            icon: const Icon(Icons.play_circle_outline_rounded),
-            label: Text(hasResume ? 'Continue' : 'No resume'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              foregroundColor: AppPalette.textPrimary,
-              side: const BorderSide(color: AppPalette.glassBorder),
-            ),
+            icon: Icons.play_circle_outline_rounded,
+            label: hasResume ? 'Continue' : 'No resume',
           ),
         ),
         const SizedBox(width: 10),
-        SizedBox(
-          width: 108,
-          child: OutlinedButton.icon(
+        Expanded(
+          child: _ActionButton(
             onPressed: onOpenExternal,
-            icon: const Icon(Icons.open_in_new_rounded, size: 18),
-            label: const Text('Open'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              foregroundColor: AppPalette.textPrimary,
-              side: const BorderSide(color: AppPalette.glassBorder),
-            ),
+            icon: Icons.open_in_new_rounded,
+            label: 'Open',
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    this.filled = false,
+  });
+
+  final VoidCallback? onPressed;
+  final IconData icon;
+  final String label;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final foregroundColor = filled ? AppPalette.bg : AppPalette.textPrimary;
+    final buttonStyle = filled
+        ? FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
+            backgroundColor: AppPalette.accent,
+            foregroundColor: foregroundColor,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          )
+        : OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
+            foregroundColor: foregroundColor,
+            side: const BorderSide(color: AppPalette.glassBorder),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          );
+
+    final child = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 6),
+          Text(label, maxLines: 1, softWrap: false),
+        ],
+      ),
+    );
+
+    if (filled) {
+      return FilledButton(
+        onPressed: onPressed,
+        style: buttonStyle,
+        child: child,
+      );
+    }
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: buttonStyle,
+      child: child,
     );
   }
 }
