@@ -44,17 +44,22 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
               child: CustomScrollView(
                 slivers: <Widget>[
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 130),
+                    padding: EdgeInsets.fromLTRB(
+                      18,
+                      8,
+                      18,
+                      entries.isEmpty ? 130 : 0,
+                    ),
                     sliver: SliverList.list(
                       children: <Widget>[
                         _HeaderSection(
                           mediaCount: entries.length,
                           sourceCount: sources.length,
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 10),
                         if (recentEntries.isNotEmpty) ...<Widget>[
                           _RecentSection(entries: recentEntries),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                         ],
                         if (isLoading) const _LoadingCard(),
                         if (!isLoading && entries.isEmpty)
@@ -189,38 +194,78 @@ class _HeaderSection extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Library',
+                'OneShelf',
                 style: textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  height: 1.05,
+                  height: 1.0,
                 ),
               ),
             ),
             const SizedBox(width: 12),
-            GlassPanel(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              borderRadius: BorderRadius.circular(16),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Icon(
-                    Icons.folder_open_rounded,
-                    size: 18,
-                    color: AppPalette.success,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$sourceCount sources • $mediaCount indexed',
-                    style: textTheme.labelLarge?.copyWith(
-                      color: AppPalette.textSecondary,
+            Flexible(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: <Widget>[
+                    _MetricPill(
+                      icon: Icons.folder_open_rounded,
+                      value: sourceCount,
+                      label: 'sources',
                     ),
-                  ),
-                ],
+                    _MetricPill(
+                      icon: Icons.grid_view_rounded,
+                      value: mediaCount,
+                      label: 'indexed',
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ],
+    );
+  }
+}
+
+class _MetricPill extends StatelessWidget {
+  const _MetricPill({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return GlassPanel(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      borderRadius: BorderRadius.circular(14),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 15, color: AppPalette.success),
+          const SizedBox(width: 6),
+          Text(
+            '$value',
+            style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: textTheme.labelMedium?.copyWith(
+              color: AppPalette.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_palette.dart';
+import '../../../../data/scanning/scan_rules.dart';
 import '../../../../domain/entities/media_entry.dart';
 
 class PosterTile extends StatelessWidget {
@@ -17,6 +18,9 @@ class PosterTile extends StatelessWidget {
     final seed = entry.item.id.hashCode;
     final gradient = _pickGradient(seed);
     final progress = entry.userState?.progress;
+    final secondaryLabel = _secondaryLabel(entry);
+    final hasSecondaryLabel =
+        secondaryLabel != null && secondaryLabel.isNotEmpty;
 
     return GestureDetector(
       onTap: onTap,
@@ -92,14 +96,16 @@ class PosterTile extends StatelessWidget {
                           style: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          entry.item.fileName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: AppPalette.textSecondary),
-                        ),
+                        if (hasSecondaryLabel) ...<Widget>[
+                          const SizedBox(height: 2),
+                          Text(
+                            secondaryLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: AppPalette.textSecondary),
+                          ),
+                        ],
                         if (progress != null) ...<Widget>[
                           const SizedBox(height: 8),
                           ClipRRect(
@@ -154,6 +160,21 @@ class PosterTile extends StatelessWidget {
   LinearGradient _pickGradient(int seed) {
     final index = seed.abs() % _gradients.length;
     return _gradients[index];
+  }
+
+  String? _secondaryLabel(MediaEntry entry) {
+    final code = entry.item.code?.trim();
+    if (code != null && code.isNotEmpty) {
+      return code;
+    }
+
+    final fileName = entry.item.fileName.trim();
+    final title = entry.item.resolvedTitle.trim().toLowerCase();
+    final fileStem = fileNameWithoutExtension(fileName).trim().toLowerCase();
+    if (fileName.isEmpty || title == fileName.toLowerCase() || title == fileStem) {
+      return null;
+    }
+    return fileName;
   }
 }
 

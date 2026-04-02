@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_palette.dart';
 import '../../core/navigation/app_routes.dart';
+import '../../data/scanning/scan_rules.dart';
 import '../../domain/entities/media_entry.dart';
 import '../library/application/library_providers.dart';
+import '../../shared/media/media_asset_resolver.dart';
 import '../../shared/widgets/frosted_background.dart';
 import '../../shared/widgets/glass_panel.dart';
 
@@ -88,14 +90,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: const <Widget>[
-                    _HintChip(text: 'File name only'),
-                    _HintChip(text: 'Case-insensitive'),
-                    _HintChip(text: 'Offline index'),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: const <Widget>[
+                      _HintChip(text: 'File name only'),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Expanded(
@@ -183,54 +184,82 @@ class _ResultsCard extends StatelessWidget {
               ),
               itemBuilder: (BuildContext context, int index) {
                 final entry = results[index];
-                final subtitle = entry.item.fileName;
-                return ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 2,
-                    vertical: 2,
-                  ),
-                  onTap: () {
-                    Navigator.of(
-                      context,
-                    ).pushNamed(AppRoutes.detail(entry.item.id));
-                  },
-                  leading: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: const LinearGradient(
-                        colors: <Color>[Color(0xFF41536E), Color(0xFF202A3A)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                    child: const SizedBox(width: 34, height: 48),
-                  ),
-                  title: Text(
-                    entry.item.resolvedTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  subtitle: Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppPalette.textSecondary,
-                    ),
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppPalette.textMuted,
-                  ),
-                );
+                return _SearchResultTile(entry: entry);
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SearchResultTile extends ConsumerWidget {
+  const _SearchResultTile({required this.entry});
+
+  final MediaEntry entry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final relativePath = entry.item.posterRelativePath;
+    final artworkAsync = relativePath == null
+        ? null
+        : ref.watch(
+            relativeImageFileProvider(
+              RelativeAssetRequest(
+                sourceId: entry.item.sourceId,
+                relativePath: relativePath,
+              ),
+            ),
+          );
+    final imageFile = artworkAsync?.asData?.value;
+    final subtitle = _resultSubtitle(entry);
+
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.detail(entry.item.id));
+      },
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: 38,
+          height: 54,
+          child: imageFile == null
+              ? const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: <Color>[Color(0xFF41536E), Color(0xFF202A3A)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                )
+              : Image.file(imageFile, fit: BoxFit.cover),
+        ),
+      ),
+      title: Text(
+        entry.item.resolvedTitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+      ),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppPalette.textSecondary),
+            ),
+      trailing: const Icon(
+        Icons.chevron_right_rounded,
+        color: AppPalette.textMuted,
       ),
     );
   }
@@ -303,4 +332,14 @@ class _HintChip extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _resultSubtitle(MediaEntry entry) {
+  final title = entry.item.resolvedTitle.trim().toLowerCase();
+  final fileName = entry.item.fileName.trim();
+  final fileStem = fileNameWithoutExtension(fileName).trim().toLowerCase();
+  if (fileName.isEmpty || title == fileName.toLowerCase() || title == fileStem) {
+    return null;
+  }
+  return fileName;
 }
