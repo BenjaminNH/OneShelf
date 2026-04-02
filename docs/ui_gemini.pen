@@ -1,0 +1,1497 @@
+{
+  "version": "2.10",
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "content": "Recently Watched",
+              "fill": "#F3F5F7",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold",
+              "id": "Oobzn",
+              "name": "h1",
+              "textGrowth": "fixed-width",
+              "type": "text",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "fill": "#D9A441",
+                          "height": 4,
+                          "id": "hWgjt",
+                          "type": "rectangle",
+                          "width": 80,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "fill": "#ffffff33",
+                      "height": 4,
+                      "id": "nH96y",
+                      "layout": "none",
+                      "name": "progress1",
+                      "type": "frame",
+                      "width": 140,
+                      "x": 0,
+                      "y": 76
+                    }
+                  ],
+                  "clip": true,
+                  "cornerRadius": 8,
+                  "fill": {
+                    "enabled": true,
+                    "mode": "fill",
+                    "type": "image",
+                    "url": "https://images.unsplash.com/photo-1543427663-93b817b10081?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0NTh8&ixlib=rb-4.1.0&q=80&w=1080"
+                  },
+                  "height": 80,
+                  "id": "rWlm1",
+                  "layout": "none",
+                  "metadata": {
+                    "author": "Luis Machado",
+                    "link": "https://unsplash.com/@luismachadodirector",
+                    "type": "unsplash",
+                    "username": "luismachadodirector"
+                  },
+                  "name": "recent1",
+                  "type": "frame",
+                  "width": 140
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "fill": "#D9A441",
+                          "height": 4,
+                          "id": "1XUjB",
+                          "type": "rectangle",
+                          "width": 30,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "fill": "#ffffff33",
+                      "height": 4,
+                      "id": "3hBWI",
+                      "layout": "none",
+                      "name": "progress2",
+                      "type": "frame",
+                      "width": 140,
+                      "x": 0,
+                      "y": 76
+                    }
+                  ],
+                  "clip": true,
+                  "cornerRadius": 8,
+                  "fill": {
+                    "enabled": true,
+                    "mode": "fill",
+                    "type": "image",
+                    "url": "https://images.unsplash.com/photo-1625517682405-45c4563ad1bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0NTh8&ixlib=rb-4.1.0&q=80&w=1080"
+                  },
+                  "height": 80,
+                  "id": "jZfYC",
+                  "layout": "none",
+                  "metadata": {
+                    "author": "Pavel Neznanov",
+                    "link": "https://unsplash.com/@npi",
+                    "type": "unsplash",
+                    "username": "npi"
+                  },
+                  "name": "recent2",
+                  "type": "frame",
+                  "width": 140
+                }
+              ],
+              "gap": 12,
+              "id": "1Z3QP",
+              "name": "recentsrow",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "content": "All Movies",
+              "fill": "#F3F5F7",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold",
+              "id": "NEbcn",
+              "name": "h2",
+              "textGrowth": "fixed-width",
+              "type": "text",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1772541800505-76f6d36f5783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTF8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "u9g1k",
+                      "metadata": {
+                        "author": "Truong Tuyet Ly",
+                        "link": "https://unsplash.com/@liliantruong2603",
+                        "type": "unsplash",
+                        "username": "liliantruong2603"
+                      },
+                      "name": "i1",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1710268470222-9afe37e44c65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTJ8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "CT6Ge",
+                      "metadata": {
+                        "author": "NASA Hubble Space Telescope",
+                        "link": "https://unsplash.com/@hubblespacetelescope",
+                        "type": "unsplash",
+                        "username": "hubblespacetelescope"
+                      },
+                      "name": "i2",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1507578099986-58b0011d489f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTN8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "y0we5",
+                      "metadata": {
+                        "author": "Dawid Zawi\u0142a",
+                        "link": "https://unsplash.com/@davealmine",
+                        "type": "unsplash",
+                        "username": "davealmine"
+                      },
+                      "name": "i3",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 12,
+                  "id": "T1Dpl",
+                  "name": "row1",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "children": [
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1638558797356-12a1510e868e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTN8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "i0KYX",
+                      "metadata": {
+                        "author": "Lucas Oliveira",
+                        "link": "https://unsplash.com/@cais08",
+                        "type": "unsplash",
+                        "username": "cais08"
+                      },
+                      "name": "i4",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1586276872491-ebe740d830f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTR8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "FEldA",
+                      "metadata": {
+                        "author": "Glen Carrie",
+                        "link": "https://unsplash.com/@glencarrie",
+                        "type": "unsplash",
+                        "username": "glencarrie"
+                      },
+                      "name": "i5",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1735666498436-d478930872ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTV8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "TZg9J",
+                      "metadata": {
+                        "author": "Nataliya Smirnova",
+                        "link": "https://unsplash.com/@fierysnake",
+                        "type": "unsplash",
+                        "username": "fierysnake"
+                      },
+                      "name": "i6",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 12,
+                  "id": "9Q4Ua",
+                  "name": "row2",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "children": [
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1580920459139-68dcb30f70fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTV8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "qR2CI",
+                      "metadata": {
+                        "author": "ALEXANDRE LALLEMAND",
+                        "link": "https://unsplash.com/@alexandrelallemand",
+                        "type": "unsplash",
+                        "username": "alexandrelallemand"
+                      },
+                      "name": "i7",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1770786998726-8ebbac5fa420?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTZ8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "LillG",
+                      "metadata": {
+                        "author": "Adam Young",
+                        "link": "https://unsplash.com/@hossua34",
+                        "type": "unsplash",
+                        "username": "hossua34"
+                      },
+                      "name": "i8",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1553128992-241b0d2ff982?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzE0OTZ8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 148,
+                      "id": "ciqaj",
+                      "metadata": {
+                        "author": "Alexander Mils",
+                        "link": "https://unsplash.com/@alexandermils",
+                        "type": "unsplash",
+                        "username": "alexandermils"
+                      },
+                      "name": "i9",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 12,
+                  "id": "yu9ZS",
+                  "name": "row3",
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 12,
+              "id": "cGzRY",
+              "layout": "vertical",
+              "name": "grid",
+              "type": "frame",
+              "width": "fill_container"
+            }
+          ],
+          "gap": 24,
+          "height": 812,
+          "id": "MXFhS",
+          "layout": "vertical",
+          "name": "newContent",
+          "padding": [
+            62,
+            16,
+            120,
+            16
+          ],
+          "type": "frame",
+          "width": 375,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "alignItems": "center",
+          "children": [
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 20,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "search",
+                  "id": "l2fyf",
+                  "type": "icon_font",
+                  "width": 20
+                },
+                {
+                  "content": "Search library...",
+                  "fill": "#B6BEC9",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal",
+                  "id": "qeWnI",
+                  "type": "text"
+                }
+              ],
+              "cornerRadius": 24,
+              "fill": "#ffffff0d",
+              "gap": 8,
+              "id": "taW2W",
+              "name": "searchBtn",
+              "padding": [
+                12,
+                24
+              ],
+              "type": "frame"
+            },
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 20,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "settings",
+                  "id": "GOimJ",
+                  "type": "icon_font",
+                  "width": 20
+                }
+              ],
+              "cornerRadius": 24,
+              "fill": "#ffffff0d",
+              "height": 48,
+              "id": "5D80J",
+              "justifyContent": "center",
+              "name": "settingsBtn",
+              "type": "frame",
+              "width": 48
+            }
+          ],
+          "cornerRadius": 32,
+          "effect": {
+            "radius": 20,
+            "type": "background_blur"
+          },
+          "fill": "#ffffff1f",
+          "height": 64,
+          "id": "OSU0L",
+          "justifyContent": "space_between",
+          "name": "capsule",
+          "padding": [
+            0,
+            8
+          ],
+          "stroke": {
+            "fill": "#ffffff1a",
+            "thickness": 1
+          },
+          "type": "frame",
+          "width": 300,
+          "x": 38,
+          "y": 710
+        }
+      ],
+      "fill": "#131922",
+      "height": 812,
+      "id": "2kg4M",
+      "layout": "none",
+      "name": "Library Home Page",
+      "type": "frame",
+      "width": 375,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "children": [
+        {
+          "effect": {
+            "radius": 40,
+            "type": "blur"
+          },
+          "fill": {
+            "enabled": true,
+            "mode": "fill",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1773592612185-bd985ac2bfe2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzA1NDV8&ixlib=rb-4.1.0&q=80&w=1080"
+          },
+          "height": 812,
+          "id": "rfcxT",
+          "layout": "none",
+          "metadata": {
+            "author": "IRIS AVI",
+            "link": "https://unsplash.com/@irisavi",
+            "type": "unsplash",
+            "username": "irisavi"
+          },
+          "name": "bgImg",
+          "type": "frame",
+          "width": 375,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "alignItems": "center",
+          "children": [
+            {
+              "children": [
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 20,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "arrow-left",
+                      "id": "PJvkp",
+                      "type": "icon_font",
+                      "width": 20
+                    }
+                  ],
+                  "cornerRadius": 20,
+                  "fill": "#ffffff1a",
+                  "height": 40,
+                  "id": "Sg5zv",
+                  "justifyContent": "center",
+                  "name": "backBtn",
+                  "type": "frame",
+                  "width": 40
+                },
+                {
+                  "height": 40,
+                  "id": "QjHs1",
+                  "name": "rightSpc",
+                  "type": "frame",
+                  "width": 40
+                }
+              ],
+              "id": "ZqADG",
+              "justifyContent": "space_between",
+              "name": "navbar",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "clip": true,
+              "cornerRadius": 16,
+              "effect": {
+                "blur": 30,
+                "color": "#00000080",
+                "offset": {
+                  "x": 0,
+                  "y": 10
+                },
+                "shadowType": "outer",
+                "type": "shadow"
+              },
+              "fill": {
+                "enabled": true,
+                "mode": "fill",
+                "type": "image",
+                "url": "https://images.unsplash.com/photo-1774060526570-e54f8a94053c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzA1NDZ8&ixlib=rb-4.1.0&q=80&w=1080"
+              },
+              "height": 300,
+              "id": "mR68G",
+              "metadata": {
+                "author": "Anton Kotlovskii",
+                "link": "https://unsplash.com/@asbey",
+                "type": "unsplash",
+                "username": "asbey"
+              },
+              "name": "poster",
+              "type": "frame",
+              "width": 200
+            },
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "content": "The Last Stand",
+                  "fill": "#F3F5F7",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold",
+                  "id": "DBYAT",
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                },
+                {
+                  "content": "2024 \u2022 Action / Sci-Fi \u2022 2h 14m",
+                  "fill": "#B6BEC9",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal",
+                  "id": "goHXB",
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 8,
+              "id": "5J1Rk",
+              "layout": "vertical",
+              "name": "meta",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#131922",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "play",
+                      "id": "QjKFO",
+                      "type": "icon_font",
+                      "width": 24
+                    },
+                    {
+                      "content": "Play Movie",
+                      "fill": "#131922",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "bold",
+                      "id": "mmvUn",
+                      "type": "text"
+                    }
+                  ],
+                  "cornerRadius": 28,
+                  "fill": "#D9A441",
+                  "gap": 8,
+                  "height": 56,
+                  "id": "h8YgA",
+                  "justifyContent": "center",
+                  "name": "pBtn",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "children": [
+                    {
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "fill": "#F3F5F7",
+                          "height": 16,
+                          "iconFontFamily": "lucide",
+                          "iconFontName": "clock",
+                          "id": "IfZrP",
+                          "type": "icon_font",
+                          "width": 16
+                        },
+                        {
+                          "content": "Resume",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "bold",
+                          "id": "JlRsl",
+                          "type": "text"
+                        }
+                      ],
+                      "cornerRadius": 24,
+                      "fill": "#ffffff1a",
+                      "gap": 8,
+                      "height": 48,
+                      "id": "i9q1D",
+                      "justifyContent": "center",
+                      "name": "resBtn",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "fill": "#F3F5F7",
+                          "height": 16,
+                          "iconFontFamily": "lucide",
+                          "iconFontName": "external-link",
+                          "id": "NGQUr",
+                          "type": "icon_font",
+                          "width": 16
+                        },
+                        {
+                          "content": "External",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "bold",
+                          "id": "5yZRI",
+                          "type": "text"
+                        }
+                      ],
+                      "cornerRadius": 24,
+                      "fill": "#ffffff1a",
+                      "gap": 8,
+                      "height": 48,
+                      "id": "tnrt4",
+                      "justifyContent": "center",
+                      "name": "extBtn",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 16,
+                  "id": "GMlTn",
+                  "justifyContent": "space_between",
+                  "name": "secActs",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#D9A441",
+                      "height": 20,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "star",
+                      "id": "YeKYC",
+                      "type": "icon_font",
+                      "width": 20
+                    },
+                    {
+                      "content": "8.5 / 10",
+                      "fill": "#F3F5F7",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "bold",
+                      "id": "XjTHg",
+                      "type": "text"
+                    }
+                  ],
+                  "gap": 8,
+                  "id": "1gdDe",
+                  "justifyContent": "center",
+                  "name": "ratingBox",
+                  "padding": [
+                    16,
+                    0
+                  ],
+                  "stroke": {
+                    "fill": "#ffffff1a",
+                    "thickness": {
+                      "bottom": 1,
+                      "top": 1
+                    }
+                  },
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "ZiYFg",
+              "layout": "vertical",
+              "name": "actions",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "content": "As humanity's last hope, an elite squad descends into the uncharted territories of a hostile galaxy.",
+              "fill": "#B6BEC9",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal",
+              "id": "bxuWG",
+              "lineHeight": 1.5,
+              "name": "syn",
+              "textGrowth": "fixed-width",
+              "type": "text",
+              "width": "fill_container"
+            }
+          ],
+          "gap": 24,
+          "height": 812,
+          "id": "6LX7Z",
+          "layout": "vertical",
+          "name": "content",
+          "padding": [
+            62,
+            24,
+            40,
+            24
+          ],
+          "type": "frame",
+          "width": 375,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "fill": "#131922",
+      "height": 812,
+      "id": "HWE6m",
+      "layout": "none",
+      "name": "Detail Page",
+      "type": "frame",
+      "width": 375,
+      "x": 400,
+      "y": 0
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 20,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "arrow-left",
+                  "id": "KLIXG",
+                  "type": "icon_font",
+                  "width": 20
+                },
+                {
+                  "content": "Search",
+                  "fill": "#F3F5F7",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "bold",
+                  "id": "92NBF",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "6uQeR",
+              "name": "header",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1489460427746-b6296f4bc3f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzA1ODd8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 120,
+                      "id": "PzYeM",
+                      "metadata": {
+                        "author": "Keith Johnston",
+                        "link": "https://unsplash.com/@acfb5071",
+                        "type": "unsplash",
+                        "username": "acfb5071"
+                      },
+                      "name": "p1",
+                      "type": "frame",
+                      "width": 80
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "The Last Stand",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "bold",
+                          "id": "99lq0",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        },
+                        {
+                          "content": "2024 \u2022 Action",
+                          "fill": "#B6BEC9",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "id": "MTIoN",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        }
+                      ],
+                      "gap": 4,
+                      "id": "jEX7v",
+                      "layout": "vertical",
+                      "name": "t1",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 12,
+                  "id": "e8x9t",
+                  "name": "r1",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "clip": true,
+                      "cornerRadius": 8,
+                      "fill": {
+                        "enabled": true,
+                        "mode": "fill",
+                        "type": "image",
+                        "url": "https://images.unsplash.com/photo-1496715976403-7e36dc43f17b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzA1ODd8&ixlib=rb-4.1.0&q=80&w=1080"
+                      },
+                      "height": 120,
+                      "id": "SYmUN",
+                      "metadata": {
+                        "author": "Billy Huynh",
+                        "link": "https://unsplash.com/@billy_huy",
+                        "type": "unsplash",
+                        "username": "billy_huy"
+                      },
+                      "name": "p2",
+                      "type": "frame",
+                      "width": 80
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Star Dust",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "bold",
+                          "id": "L1FwY",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        },
+                        {
+                          "content": "2023 \u2022 Sci-Fi",
+                          "fill": "#B6BEC9",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "id": "3fw5b",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        }
+                      ],
+                      "gap": 4,
+                      "id": "3hXH7",
+                      "layout": "vertical",
+                      "name": "t2",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "gap": 12,
+                  "id": "oi6xj",
+                  "name": "r2",
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "height": "fill_container",
+              "id": "X07Zs",
+              "layout": "vertical",
+              "name": "results",
+              "padding": [
+                24,
+                0
+              ],
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 20,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "search",
+                  "id": "ZZ2iI",
+                  "type": "icon_font",
+                  "width": 20
+                },
+                {
+                  "content": "Last Stand|",
+                  "fill": "#F3F5F7",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal",
+                  "id": "PTQ0o",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                }
+              ],
+              "cornerRadius": 28,
+              "fill": "#ffffff1a",
+              "gap": 12,
+              "height": 56,
+              "id": "MgcHw",
+              "name": "searchBar",
+              "padding": [
+                0,
+                24
+              ],
+              "type": "frame",
+              "width": "fill_container"
+            }
+          ],
+          "height": 812,
+          "id": "QF3K2",
+          "layout": "vertical",
+          "name": "searchContent",
+          "padding": [
+            62,
+            16,
+            16,
+            16
+          ],
+          "type": "frame",
+          "width": 375,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "fill": "#131922",
+      "height": 812,
+      "id": "h1YWb",
+      "layout": "none",
+      "name": "Search Page",
+      "type": "frame",
+      "width": 375,
+      "x": 800,
+      "y": 0
+    },
+    {
+      "children": [
+        {
+          "fill": {
+            "enabled": true,
+            "mode": "fill",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1759267960211-5f445be05c93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUxMzA2MjN8&ixlib=rb-4.1.0&q=80&w=1080"
+          },
+          "height": 375,
+          "id": "wNOTo",
+          "layout": "none",
+          "metadata": {
+            "author": "Nathan Nuyda",
+            "link": "https://unsplash.com/@nathaen_",
+            "type": "unsplash",
+            "username": "nathaen_"
+          },
+          "name": "movieImg",
+          "type": "frame",
+          "width": 812,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "children": [
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 24,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "arrow-left",
+                  "id": "LJp8m",
+                  "type": "icon_font",
+                  "width": 24
+                },
+                {
+                  "content": "The Last Stand",
+                  "fill": "#F3F5F7",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "bold",
+                  "id": "ZzkBs",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "6p46f",
+              "name": "topBar",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "content": "1:04:12",
+                      "fill": "#F3F5F7",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "id": "Br7mh",
+                      "type": "text"
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 2,
+                          "fill": "#D9A441",
+                          "height": 4,
+                          "id": "xRIF8",
+                          "name": "fgTrack",
+                          "type": "rectangle",
+                          "width": 200,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "cornerRadius": 2,
+                      "fill": "#ffffff33",
+                      "height": 4,
+                      "id": "JDLPJ",
+                      "layout": "none",
+                      "name": "bgTrack",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "content": "2:14:00",
+                      "fill": "#F3F5F7",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "id": "XkuQR",
+                      "type": "text"
+                    }
+                  ],
+                  "gap": 16,
+                  "id": "wJprT",
+                  "name": "timeline",
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "skip-back",
+                      "id": "b4r9n",
+                      "type": "icon_font",
+                      "width": 24
+                    },
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 32,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "pause",
+                      "id": "jI4SK",
+                      "type": "icon_font",
+                      "width": 32
+                    },
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "skip-forward",
+                      "id": "nANTq",
+                      "type": "icon_font",
+                      "width": 24
+                    }
+                  ],
+                  "gap": 24,
+                  "id": "J4Qpb",
+                  "justifyContent": "center",
+                  "name": "controls",
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "59MpM",
+              "layout": "vertical",
+              "name": "botBar",
+              "type": "frame",
+              "width": "fill_container"
+            }
+          ],
+          "fill": "#0000004d",
+          "height": 375,
+          "id": "SI0pW",
+          "justifyContent": "space_between",
+          "layout": "vertical",
+          "name": "overlay",
+          "padding": [
+            24,
+            40
+          ],
+          "type": "frame",
+          "width": 812,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "clip": true,
+      "fill": "#000000",
+      "height": 375,
+      "id": "vnHPF",
+      "layout": "none",
+      "name": "Player Page",
+      "type": "frame",
+      "width": 812,
+      "x": 0,
+      "y": 850
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "alignItems": "center",
+              "children": [
+                {
+                  "fill": "#F3F5F7",
+                  "height": 20,
+                  "iconFontFamily": "lucide",
+                  "iconFontName": "arrow-left",
+                  "id": "YsiNa",
+                  "type": "icon_font",
+                  "width": 20
+                },
+                {
+                  "content": "Settings",
+                  "fill": "#F3F5F7",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "bold",
+                  "id": "sFxLr",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "h2adZ",
+              "name": "header",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "content": "Media library",
+                  "fill": "#B6BEC9",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold",
+                  "id": "iyKmk",
+                  "type": "text"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "folder",
+                      "id": "0pOvz",
+                      "type": "icon_font",
+                      "width": 24
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Manage sources",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "normal",
+                          "id": "hVAW5",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        },
+                        {
+                          "content": "1 source added (/movies)",
+                          "fill": "#8D98A6",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "id": "2kJuF",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        }
+                      ],
+                      "gap": 4,
+                      "id": "e3WdV",
+                      "layout": "vertical",
+                      "name": "t1",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "cornerRadius": 12,
+                  "fill": "#ffffff0d",
+                  "gap": 16,
+                  "id": "CQbDe",
+                  "name": "item1",
+                  "padding": 16,
+                  "type": "frame",
+                  "width": "fill_container"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "refresh-cw",
+                      "id": "k1WDy",
+                      "type": "icon_font",
+                      "width": 24
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Scan library",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "normal",
+                          "id": "r56i5",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        },
+                        {
+                          "content": "Update from local files",
+                          "fill": "#8D98A6",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "id": "H8uRm",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        }
+                      ],
+                      "gap": 4,
+                      "id": "r9cNw",
+                      "layout": "vertical",
+                      "name": "t2",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "cornerRadius": 12,
+                  "fill": "#ffffff0d",
+                  "gap": 16,
+                  "id": "gFhh8",
+                  "name": "item2",
+                  "padding": 16,
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "wNJpk",
+              "layout": "vertical",
+              "name": "group1",
+              "type": "frame",
+              "width": "fill_container"
+            },
+            {
+              "children": [
+                {
+                  "content": "Playback",
+                  "fill": "#B6BEC9",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold",
+                  "id": "GGM7I",
+                  "type": "text"
+                },
+                {
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "fill": "#F3F5F7",
+                      "height": 24,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "play-circle",
+                      "id": "PcDc3",
+                      "type": "icon_font",
+                      "width": 24
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Default player",
+                          "fill": "#F3F5F7",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "normal",
+                          "id": "0xOxg",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        },
+                        {
+                          "content": "Built-in player",
+                          "fill": "#8D98A6",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "id": "vRRNr",
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container"
+                        }
+                      ],
+                      "gap": 4,
+                      "id": "eBjux",
+                      "layout": "vertical",
+                      "name": "t3",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ],
+                  "cornerRadius": 12,
+                  "fill": "#ffffff0d",
+                  "gap": 16,
+                  "id": "ojul9",
+                  "name": "item3",
+                  "padding": 16,
+                  "type": "frame",
+                  "width": "fill_container"
+                }
+              ],
+              "gap": 16,
+              "id": "8fOpv",
+              "layout": "vertical",
+              "name": "group2",
+              "type": "frame",
+              "width": "fill_container"
+            }
+          ],
+          "gap": 32,
+          "height": 812,
+          "id": "FNBA9",
+          "layout": "vertical",
+          "name": "settingsContent",
+          "padding": [
+            62,
+            16,
+            16,
+            16
+          ],
+          "type": "frame",
+          "width": 375,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "fill": "#131922",
+      "height": 812,
+      "id": "vNNMo",
+      "layout": "none",
+      "name": "Settings Page",
+      "type": "frame",
+      "width": 375,
+      "x": 1200,
+      "y": 0
+    },
+    {
+      "height": 100,
+      "id": "OlwZH",
+      "layout": "none",
+      "name": "Test Frame",
+      "type": "frame",
+      "width": 100,
+      "x": 0,
+      "y": 0
+    }
+  ]
+}
