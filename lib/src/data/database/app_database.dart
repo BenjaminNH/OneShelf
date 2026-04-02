@@ -147,6 +147,9 @@ class AppSettingsTable extends Table {
   BoolColumn get keepResumeHistory =>
       boolean().withDefault(const Constant(true))();
 
+  BoolColumn get showRecentActivity =>
+      boolean().withDefault(const Constant(true))();
+
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -196,12 +199,20 @@ class AppDatabase extends _$AppDatabase {
       driftDatabase(name: 'oneshelf.sqlite');
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(
+          appSettingsTable,
+          appSettingsTable.showRecentActivity,
+        );
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

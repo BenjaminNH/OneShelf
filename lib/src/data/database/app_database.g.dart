@@ -2820,6 +2820,20 @@ class $AppSettingsTableTable extends AppSettingsTable
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _showRecentActivityMeta =
+      const VerificationMeta('showRecentActivity');
+  @override
+  late final GeneratedColumn<bool> showRecentActivity = GeneratedColumn<bool>(
+    'show_recent_activity',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_recent_activity" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -2840,6 +2854,7 @@ class $AppSettingsTableTable extends AppSettingsTable
     holdSpeed,
     rememberPlaybackSpeed,
     keepResumeHistory,
+    showRecentActivity,
     updatedAt,
   ];
   @override
@@ -2908,6 +2923,15 @@ class $AppSettingsTableTable extends AppSettingsTable
         ),
       );
     }
+    if (data.containsKey('show_recent_activity')) {
+      context.handle(
+        _showRecentActivityMeta,
+        showRecentActivity.isAcceptableOrUnknown(
+          data['show_recent_activity']!,
+          _showRecentActivityMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -2953,6 +2977,10 @@ class $AppSettingsTableTable extends AppSettingsTable
         DriftSqlType.bool,
         data['${effectivePrefix}keep_resume_history'],
       )!,
+      showRecentActivity: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}show_recent_activity'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -2975,6 +3003,7 @@ class AppSettingsTableData extends DataClass
   final double holdSpeed;
   final bool rememberPlaybackSpeed;
   final bool keepResumeHistory;
+  final bool showRecentActivity;
   final DateTime updatedAt;
   const AppSettingsTableData({
     required this.id,
@@ -2984,6 +3013,7 @@ class AppSettingsTableData extends DataClass
     required this.holdSpeed,
     required this.rememberPlaybackSpeed,
     required this.keepResumeHistory,
+    required this.showRecentActivity,
     required this.updatedAt,
   });
   @override
@@ -2996,6 +3026,7 @@ class AppSettingsTableData extends DataClass
     map['hold_speed'] = Variable<double>(holdSpeed);
     map['remember_playback_speed'] = Variable<bool>(rememberPlaybackSpeed);
     map['keep_resume_history'] = Variable<bool>(keepResumeHistory);
+    map['show_recent_activity'] = Variable<bool>(showRecentActivity);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -3009,6 +3040,7 @@ class AppSettingsTableData extends DataClass
       holdSpeed: Value(holdSpeed),
       rememberPlaybackSpeed: Value(rememberPlaybackSpeed),
       keepResumeHistory: Value(keepResumeHistory),
+      showRecentActivity: Value(showRecentActivity),
       updatedAt: Value(updatedAt),
     );
   }
@@ -3032,6 +3064,7 @@ class AppSettingsTableData extends DataClass
         json['rememberPlaybackSpeed'],
       ),
       keepResumeHistory: serializer.fromJson<bool>(json['keepResumeHistory']),
+      showRecentActivity: serializer.fromJson<bool>(json['showRecentActivity']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -3046,6 +3079,7 @@ class AppSettingsTableData extends DataClass
       'holdSpeed': serializer.toJson<double>(holdSpeed),
       'rememberPlaybackSpeed': serializer.toJson<bool>(rememberPlaybackSpeed),
       'keepResumeHistory': serializer.toJson<bool>(keepResumeHistory),
+      'showRecentActivity': serializer.toJson<bool>(showRecentActivity),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -3058,6 +3092,7 @@ class AppSettingsTableData extends DataClass
     double? holdSpeed,
     bool? rememberPlaybackSpeed,
     bool? keepResumeHistory,
+    bool? showRecentActivity,
     DateTime? updatedAt,
   }) => AppSettingsTableData(
     id: id ?? this.id,
@@ -3067,6 +3102,7 @@ class AppSettingsTableData extends DataClass
     holdSpeed: holdSpeed ?? this.holdSpeed,
     rememberPlaybackSpeed: rememberPlaybackSpeed ?? this.rememberPlaybackSpeed,
     keepResumeHistory: keepResumeHistory ?? this.keepResumeHistory,
+    showRecentActivity: showRecentActivity ?? this.showRecentActivity,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   AppSettingsTableData copyWithCompanion(AppSettingsTableCompanion data) {
@@ -3088,6 +3124,9 @@ class AppSettingsTableData extends DataClass
       keepResumeHistory: data.keepResumeHistory.present
           ? data.keepResumeHistory.value
           : this.keepResumeHistory,
+      showRecentActivity: data.showRecentActivity.present
+          ? data.showRecentActivity.value
+          : this.showRecentActivity,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -3102,6 +3141,7 @@ class AppSettingsTableData extends DataClass
           ..write('holdSpeed: $holdSpeed, ')
           ..write('rememberPlaybackSpeed: $rememberPlaybackSpeed, ')
           ..write('keepResumeHistory: $keepResumeHistory, ')
+          ..write('showRecentActivity: $showRecentActivity, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -3116,6 +3156,7 @@ class AppSettingsTableData extends DataClass
     holdSpeed,
     rememberPlaybackSpeed,
     keepResumeHistory,
+    showRecentActivity,
     updatedAt,
   );
   @override
@@ -3129,6 +3170,7 @@ class AppSettingsTableData extends DataClass
           other.holdSpeed == this.holdSpeed &&
           other.rememberPlaybackSpeed == this.rememberPlaybackSpeed &&
           other.keepResumeHistory == this.keepResumeHistory &&
+          other.showRecentActivity == this.showRecentActivity &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -3140,6 +3182,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
   final Value<double> holdSpeed;
   final Value<bool> rememberPlaybackSpeed;
   final Value<bool> keepResumeHistory;
+  final Value<bool> showRecentActivity;
   final Value<DateTime> updatedAt;
   const AppSettingsTableCompanion({
     this.id = const Value.absent(),
@@ -3149,6 +3192,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
     this.holdSpeed = const Value.absent(),
     this.rememberPlaybackSpeed = const Value.absent(),
     this.keepResumeHistory = const Value.absent(),
+    this.showRecentActivity = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   AppSettingsTableCompanion.insert({
@@ -3159,6 +3203,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
     this.holdSpeed = const Value.absent(),
     this.rememberPlaybackSpeed = const Value.absent(),
     this.keepResumeHistory = const Value.absent(),
+    this.showRecentActivity = const Value.absent(),
     required DateTime updatedAt,
   }) : updatedAt = Value(updatedAt);
   static Insertable<AppSettingsTableData> custom({
@@ -3169,6 +3214,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
     Expression<double>? holdSpeed,
     Expression<bool>? rememberPlaybackSpeed,
     Expression<bool>? keepResumeHistory,
+    Expression<bool>? showRecentActivity,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
@@ -3183,6 +3229,8 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
       if (rememberPlaybackSpeed != null)
         'remember_playback_speed': rememberPlaybackSpeed,
       if (keepResumeHistory != null) 'keep_resume_history': keepResumeHistory,
+      if (showRecentActivity != null)
+        'show_recent_activity': showRecentActivity,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
@@ -3195,6 +3243,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
     Value<double>? holdSpeed,
     Value<bool>? rememberPlaybackSpeed,
     Value<bool>? keepResumeHistory,
+    Value<bool>? showRecentActivity,
     Value<DateTime>? updatedAt,
   }) {
     return AppSettingsTableCompanion(
@@ -3206,6 +3255,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
       rememberPlaybackSpeed:
           rememberPlaybackSpeed ?? this.rememberPlaybackSpeed,
       keepResumeHistory: keepResumeHistory ?? this.keepResumeHistory,
+      showRecentActivity: showRecentActivity ?? this.showRecentActivity,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -3238,6 +3288,9 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
     if (keepResumeHistory.present) {
       map['keep_resume_history'] = Variable<bool>(keepResumeHistory.value);
     }
+    if (showRecentActivity.present) {
+      map['show_recent_activity'] = Variable<bool>(showRecentActivity.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -3254,6 +3307,7 @@ class AppSettingsTableCompanion extends UpdateCompanion<AppSettingsTableData> {
           ..write('holdSpeed: $holdSpeed, ')
           ..write('rememberPlaybackSpeed: $rememberPlaybackSpeed, ')
           ..write('keepResumeHistory: $keepResumeHistory, ')
+          ..write('showRecentActivity: $showRecentActivity, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -5543,6 +5597,7 @@ typedef $$AppSettingsTableTableCreateCompanionBuilder =
       Value<double> holdSpeed,
       Value<bool> rememberPlaybackSpeed,
       Value<bool> keepResumeHistory,
+      Value<bool> showRecentActivity,
       required DateTime updatedAt,
     });
 typedef $$AppSettingsTableTableUpdateCompanionBuilder =
@@ -5554,6 +5609,7 @@ typedef $$AppSettingsTableTableUpdateCompanionBuilder =
       Value<double> holdSpeed,
       Value<bool> rememberPlaybackSpeed,
       Value<bool> keepResumeHistory,
+      Value<bool> showRecentActivity,
       Value<DateTime> updatedAt,
     });
 
@@ -5598,6 +5654,11 @@ class $$AppSettingsTableTableFilterComposer
 
   ColumnFilters<bool> get keepResumeHistory => $composableBuilder(
     column: $table.keepResumeHistory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showRecentActivity => $composableBuilder(
+    column: $table.showRecentActivity,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5651,6 +5712,11 @@ class $$AppSettingsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get showRecentActivity => $composableBuilder(
+    column: $table.showRecentActivity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -5694,6 +5760,11 @@ class $$AppSettingsTableTableAnnotationComposer
 
   GeneratedColumn<bool> get keepResumeHistory => $composableBuilder(
     column: $table.keepResumeHistory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get showRecentActivity => $composableBuilder(
+    column: $table.showRecentActivity,
     builder: (column) => column,
   );
 
@@ -5745,6 +5816,7 @@ class $$AppSettingsTableTableTableManager
                 Value<double> holdSpeed = const Value.absent(),
                 Value<bool> rememberPlaybackSpeed = const Value.absent(),
                 Value<bool> keepResumeHistory = const Value.absent(),
+                Value<bool> showRecentActivity = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AppSettingsTableCompanion(
                 id: id,
@@ -5754,6 +5826,7 @@ class $$AppSettingsTableTableTableManager
                 holdSpeed: holdSpeed,
                 rememberPlaybackSpeed: rememberPlaybackSpeed,
                 keepResumeHistory: keepResumeHistory,
+                showRecentActivity: showRecentActivity,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
@@ -5765,6 +5838,7 @@ class $$AppSettingsTableTableTableManager
                 Value<double> holdSpeed = const Value.absent(),
                 Value<bool> rememberPlaybackSpeed = const Value.absent(),
                 Value<bool> keepResumeHistory = const Value.absent(),
+                Value<bool> showRecentActivity = const Value.absent(),
                 required DateTime updatedAt,
               }) => AppSettingsTableCompanion.insert(
                 id: id,
@@ -5774,6 +5848,7 @@ class $$AppSettingsTableTableTableManager
                 holdSpeed: holdSpeed,
                 rememberPlaybackSpeed: rememberPlaybackSpeed,
                 keepResumeHistory: keepResumeHistory,
+                showRecentActivity: showRecentActivity,
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0

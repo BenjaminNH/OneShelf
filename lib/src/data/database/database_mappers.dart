@@ -81,6 +81,7 @@ extension AppSettingsRowMapper on AppSettingsTableData {
       holdSpeed: holdSpeed,
       rememberPlaybackSpeed: rememberPlaybackSpeed,
       keepResumeHistory: keepResumeHistory,
+      showRecentActivity: showRecentActivity,
     );
   }
 }

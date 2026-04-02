@@ -42,6 +42,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
             holdSpeed: Value(settings.holdSpeed),
             rememberPlaybackSpeed: Value(settings.rememberPlaybackSpeed),
             keepResumeHistory: Value(settings.keepResumeHistory),
+            showRecentActivity: Value(settings.showRecentActivity),
             updatedAt: Value(now),
           ),
         );

@@ -177,6 +177,15 @@ class _SettingsPageState extends State<SettingsPage> {
                             _draft.copyWith(keepResumeHistory: value),
                           ),
                         ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Show recent watching'),
+                          value: _draft.showRecentActivity,
+                          activeThumbColor: AppPalette.accent,
+                          onChanged: (value) => _update(
+                            _draft.copyWith(showRecentActivity: value),
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         _LabeledSlider(
                           label: 'Seek backward',

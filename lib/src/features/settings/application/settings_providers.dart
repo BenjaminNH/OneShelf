@@ -31,6 +31,7 @@ class SettingsActions {
     double? holdSpeed,
     bool? rememberPlaybackSpeed,
     bool? keepResumeHistory,
+    bool? showRecentActivity,
   }) async {
     final current = await _repository.load();
     final next = current.copyWith(
@@ -40,6 +41,7 @@ class SettingsActions {
       holdSpeed: holdSpeed,
       rememberPlaybackSpeed: rememberPlaybackSpeed,
       keepResumeHistory: keepResumeHistory,
+      showRecentActivity: showRecentActivity,
     );
     await _repository.save(next);
   }

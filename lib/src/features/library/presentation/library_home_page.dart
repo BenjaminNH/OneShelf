@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_palette.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../domain/entities/media_entry.dart';
+import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/media_item.dart';
 import '../../library/application/library_providers.dart';
+import '../../settings/application/settings_providers.dart';
 import '../../sources/application/sources_providers.dart';
 import '../../../shared/media/media_asset_resolver.dart';
 import '../../../shared/widgets/archive_bottom_bar.dart';
@@ -25,14 +27,19 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   Widget build(BuildContext context) {
     final entriesAsync = ref.watch(libraryEntriesProvider);
     final recentAsync = ref.watch(recentEntriesProvider);
+    final settingsAsync = ref.watch(appSettingsProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
 
     final entries = entriesAsync.asData?.value ?? const <MediaEntry>[];
     final recentEntries = recentAsync.asData?.value ?? const <MediaEntry>[];
+    final settings = settingsAsync.asData?.value ?? const AppSettings();
     final sources = sourcesAsync.asData?.value ?? const [];
+    final showRecentSection =
+        settings.showRecentActivity && recentEntries.isNotEmpty;
     final isLoading =
         entriesAsync.isLoading &&
         recentAsync.isLoading &&
+        settingsAsync.isLoading &&
         sourcesAsync.isLoading;
 
     return Scaffold(
@@ -54,7 +61,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                       children: <Widget>[
                         _HeaderSection(mediaCount: entries.length),
                         const SizedBox(height: 20),
-                        if (recentEntries.isNotEmpty) ...<Widget>[
+                        if (showRecentSection) ...<Widget>[
                           _RecentSection(entries: recentEntries),
                           const SizedBox(height: 14),
                         ],
