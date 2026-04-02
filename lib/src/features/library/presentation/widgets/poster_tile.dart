@@ -18,9 +18,7 @@ class PosterTile extends StatelessWidget {
     final seed = entry.item.id.hashCode;
     final gradient = _pickGradient(seed);
     final progress = entry.userState?.progress;
-    final secondaryLabel = _secondaryLabel(entry);
-    final hasSecondaryLabel =
-        secondaryLabel != null && secondaryLabel.isNotEmpty;
+    final posterLabel = _posterLabel(entry);
 
     return GestureDetector(
       onTap: onTap,
@@ -90,22 +88,12 @@ class PosterTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Text(
-                          entry.item.resolvedTitle,
+                          posterLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: AppPalette.textSecondary),
                         ),
-                        if (hasSecondaryLabel) ...<Widget>[
-                          const SizedBox(height: 2),
-                          Text(
-                            secondaryLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: AppPalette.textSecondary),
-                          ),
-                        ],
                         if (progress != null) ...<Widget>[
                           const SizedBox(height: 8),
                           ClipRRect(
@@ -162,19 +150,12 @@ class PosterTile extends StatelessWidget {
     return _gradients[index];
   }
 
-  String? _secondaryLabel(MediaEntry entry) {
-    final code = entry.item.code?.trim();
-    if (code != null && code.isNotEmpty) {
-      return code;
+  String _posterLabel(MediaEntry entry) {
+    final parsedTitle = entry.item.title?.trim();
+    if (parsedTitle != null && parsedTitle.isNotEmpty) {
+      return parsedTitle;
     }
-
-    final fileName = entry.item.fileName.trim();
-    final title = entry.item.resolvedTitle.trim().toLowerCase();
-    final fileStem = fileNameWithoutExtension(fileName).trim().toLowerCase();
-    if (fileName.isEmpty || title == fileName.toLowerCase() || title == fileStem) {
-      return null;
-    }
-    return fileName;
+    return fileNameWithoutExtension(entry.item.fileName.trim());
   }
 }
 

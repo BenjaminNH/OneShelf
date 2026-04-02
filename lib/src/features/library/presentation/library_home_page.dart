@@ -205,67 +205,40 @@ class _HeaderSection extends StatelessWidget {
             Flexible(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.end,
-                  children: <Widget>[
-                    _MetricPill(
-                      icon: Icons.folder_open_rounded,
-                      value: sourceCount,
-                      label: 'sources',
+                child: GlassPanel(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 7,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const Icon(
+                          Icons.folder_open_rounded,
+                          size: 14,
+                          color: AppPalette.success,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '$sourceCount sources • $mediaCount indexed',
+                          maxLines: 1,
+                          style: textTheme.labelMedium?.copyWith(
+                            color: AppPalette.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    _MetricPill(
-                      icon: Icons.grid_view_rounded,
-                      value: mediaCount,
-                      label: 'indexed',
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ],
-    );
-  }
-}
-
-class _MetricPill extends StatelessWidget {
-  const _MetricPill({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final int value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return GlassPanel(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      borderRadius: BorderRadius.circular(14),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Icon(icon, size: 15, color: AppPalette.success),
-          const SizedBox(width: 6),
-          Text(
-            '$value',
-            style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: textTheme.labelMedium?.copyWith(
-              color: AppPalette.textSecondary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

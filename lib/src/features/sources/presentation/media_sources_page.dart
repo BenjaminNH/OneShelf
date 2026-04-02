@@ -162,29 +162,52 @@ class _SourceCard extends StatelessWidget {
               ).textTheme.bodySmall?.copyWith(color: AppPalette.textMuted),
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Row(
               children: [
-                OutlinedButton.icon(
-                  onPressed: () => onRescan?.call(source.id),
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Rescan'),
-                  style: _actionButtonStyle(),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => onRescan?.call(source.id),
+                    icon: const Icon(Icons.refresh_rounded, size: 16),
+                    label: const Text(
+                      'Rescan',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                    style: _actionButtonStyle(),
+                  ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: permissionLost
-                      ? () => onReauthorize?.call(source.id)
-                      : null,
-                  icon: const Icon(Icons.lock_open_rounded),
-                  label: const Text('Reauthorize'),
-                  style: _actionButtonStyle(),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: permissionLost
+                        ? () => onReauthorize?.call(source.id)
+                        : null,
+                    icon: const Icon(Icons.lock_open_rounded, size: 16),
+                    label: const Text(
+                      'Reauthorize',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                    style: _actionButtonStyle(),
+                  ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => onRemove?.call(source.id),
-                  icon: const Icon(Icons.delete_outline_rounded),
-                  label: const Text('Remove'),
-                  style: _actionButtonStyle(foregroundColor: AppPalette.danger),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => onRemove?.call(source.id),
+                    icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                    label: const Text(
+                      'Remove',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                    style: _actionButtonStyle(
+                      foregroundColor: AppPalette.danger,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -199,8 +222,10 @@ ButtonStyle _actionButtonStyle({Color? foregroundColor}) {
   return OutlinedButton.styleFrom(
     foregroundColor: foregroundColor,
     visualDensity: VisualDensity.compact,
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-    textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    alignment: Alignment.center,
   );
 }
 
