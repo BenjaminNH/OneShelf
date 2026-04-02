@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_palette.dart';
 
@@ -30,6 +31,14 @@ abstract final class AppTheme {
         foregroundColor: AppPalette.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: AppPalette.bg,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

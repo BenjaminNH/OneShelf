@@ -91,8 +91,11 @@ class PosterTile extends StatelessWidget {
                           posterLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: AppPalette.textSecondary),
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: AppPalette.textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                         if (progress != null) ...<Widget>[
                           const SizedBox(height: 8),

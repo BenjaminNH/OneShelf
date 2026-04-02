@@ -52,10 +52,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                     ),
                     sliver: SliverList.list(
                       children: <Widget>[
-                        _HeaderSection(
-                          mediaCount: entries.length,
-                          sourceCount: sources.length,
-                        ),
+                        _HeaderSection(mediaCount: entries.length),
                         const SizedBox(height: 10),
                         if (recentEntries.isNotEmpty) ...<Widget>[
                           _RecentSection(entries: recentEntries),
@@ -178,10 +175,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 }
 
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.mediaCount, required this.sourceCount});
+  const _HeaderSection({required this.mediaCount});
 
   final int mediaCount;
-  final int sourceCount;
 
   @override
   Widget build(BuildContext context) {
@@ -217,13 +213,13 @@ class _HeaderSection extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         const Icon(
-                          Icons.folder_open_rounded,
+                          Icons.grid_view_rounded,
                           size: 14,
                           color: AppPalette.success,
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '$sourceCount sources • $mediaCount indexed',
+                          '$mediaCount indexed',
                           maxLines: 1,
                           style: textTheme.labelMedium?.copyWith(
                             color: AppPalette.textSecondary,

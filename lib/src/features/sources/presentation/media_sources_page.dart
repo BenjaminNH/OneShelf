@@ -165,48 +165,29 @@ class _SourceCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: _SourceActionButton(
                     onPressed: () => onRescan?.call(source.id),
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text(
-                      'Rescan',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                    style: _actionButtonStyle(),
+                    icon: Icons.refresh_rounded,
+                    label: 'Rescan',
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: _SourceActionButton(
                     onPressed: permissionLost
                         ? () => onReauthorize?.call(source.id)
                         : null,
-                    icon: const Icon(Icons.lock_open_rounded, size: 16),
-                    label: const Text(
-                      'Reauthorize',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                    style: _actionButtonStyle(),
+                    icon: Icons.lock_open_rounded,
+                    label: 'Reauthorize',
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: _SourceActionButton(
                     onPressed: () => onRemove?.call(source.id),
-                    icon: const Icon(Icons.delete_outline_rounded, size: 16),
-                    label: const Text(
-                      'Remove',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                    style: _actionButtonStyle(
-                      foregroundColor: AppPalette.danger,
-                    ),
+                    icon: Icons.delete_outline_rounded,
+                    label: 'Remove',
+                    foregroundColor: AppPalette.danger,
                   ),
                 ),
               ],
@@ -218,11 +199,44 @@ class _SourceCard extends StatelessWidget {
   }
 }
 
+class _SourceActionButton extends StatelessWidget {
+  const _SourceActionButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    this.foregroundColor,
+  });
+
+  final VoidCallback? onPressed;
+  final IconData icon;
+  final String label;
+  final Color? foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: _actionButtonStyle(foregroundColor: foregroundColor),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15),
+            const SizedBox(width: 6),
+            Text(label, maxLines: 1, softWrap: false),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 ButtonStyle _actionButtonStyle({Color? foregroundColor}) {
   return OutlinedButton.styleFrom(
     foregroundColor: foregroundColor,
     visualDensity: VisualDensity.compact,
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
     textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     alignment: Alignment.center,
