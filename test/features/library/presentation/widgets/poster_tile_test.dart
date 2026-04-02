@@ -9,7 +9,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: PosterTile(entry: _entry(title: 'Movie Name', fileName: 'Movie Name.mp4')),
+          body: PosterTile(
+            entry: _entry(title: 'Movie Name', fileName: 'Movie Name.mp4'),
+          ),
         ),
       ),
     );
@@ -18,21 +20,33 @@ void main() {
     expect(find.text('Movie Name.mp4'), findsNothing);
   });
 
-  testWidgets('poster tile keeps subtitle when it adds information', (tester) async {
+  testWidgets('poster tile keeps subtitle when media code exists', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: PosterTile(entry: _entry(title: 'Movie Name', fileName: 'ABP-123.mp4')),
+          body: PosterTile(
+            entry: _entry(
+              title: 'Movie Name',
+              fileName: 'ABP-123.mp4',
+              code: 'ABP-123',
+            ),
+          ),
         ),
       ),
     );
 
     expect(find.text('Movie Name'), findsOneWidget);
-    expect(find.text('ABP-123.mp4'), findsOneWidget);
+    expect(find.text('ABP-123'), findsOneWidget);
   });
 }
 
-MediaEntry _entry({required String title, required String fileName}) {
+MediaEntry _entry({
+  required String title,
+  required String fileName,
+  String? code,
+}) {
   final now = DateTime(2026, 4, 2);
   return MediaEntry(
     item: MediaItem(
@@ -41,6 +55,7 @@ MediaEntry _entry({required String title, required String fileName}) {
       title: title,
       displayLabel: title,
       fileName: fileName,
+      code: code,
       firstSeenAt: now,
       lastSeenAt: now,
       createdAt: now,
