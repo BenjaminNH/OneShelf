@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:docman/docman.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '../data/providers/data_providers.dart';
-import '../data/scanning/scan_rules.dart';
 import '../domain/entities/media_entry.dart';
 import '../domain/entities/media_item.dart';
 import '../features/detail/presentation/detail_page.dart';
@@ -17,6 +17,7 @@ import '../features/settings/presentation/settings_page.dart';
 import '../features/sources/application/sources_providers.dart';
 import '../features/sources/presentation/media_sources_page.dart';
 import '../core/navigation/app_routes.dart';
+import '../shared/media/media_asset_resolver.dart';
 
 class DetailRoutePage extends ConsumerWidget {
   const DetailRoutePage({required this.mediaId, super.key});
@@ -34,41 +35,75 @@ class DetailRoutePage extends ConsumerWidget {
         if (entry == null) {
           return const _RouteErrorPage(message: 'Media item not found.');
         }
+        final primaryVideoAsync = entry.item.primaryVideoRelativePath == null
+            ? null
+            : ref.watch(
+                relativeDocumentProvider(
+                  RelativeAssetRequest(
+                    sourceId: entry.item.sourceId,
+                    relativePath: entry.item.primaryVideoRelativePath!,
+                  ),
+                ),
+              );
+        final posterAsync = entry.item.posterRelativePath == null
+            ? null
+            : ref.watch(
+                relativeImageFileProvider(
+                  RelativeAssetRequest(
+                    sourceId: entry.item.sourceId,
+                    relativePath: entry.item.posterRelativePath!,
+                  ),
+                ),
+              );
+        final fanartAsync = entry.item.fanartRelativePath == null
+            ? null
+            : ref.watch(
+                relativeImageFileProvider(
+                  RelativeAssetRequest(
+                    sourceId: entry.item.sourceId,
+                    relativePath: entry.item.fanartRelativePath!,
+                  ),
+                ),
+              );
+        final primaryVideo = primaryVideoAsync?.asData?.value;
+        final posterFile = posterAsync?.asData?.value;
+        final fanartFile = fanartAsync?.asData?.value;
+        final hasPlayableFile = primaryVideo != null;
+
         return DetailPage(
           entry: entry,
-          onPlay: () {
-            Navigator.of(context).pushNamed(AppRoutes.player(mediaId));
-          },
-          onContinuePlay: entry.hasResume
+          heroImage: fanartFile == null ? null : FileImage(fanartFile),
+          posterImage: posterFile == null ? null : FileImage(posterFile),
+          onPlay: hasPlayableFile
               ? () {
                   Navigator.of(context).pushNamed(AppRoutes.player(mediaId));
                 }
               : null,
-          onOpenExternal: () async {
-            final file = await _resolvePrimaryVideo(ref, entry.item);
-            if (!context.mounted) {
-              return;
-            }
-            if (file == null) {
-              _showMessage(
-                context,
-                'Unable to locate this file for external playback.',
-              );
-              return;
-            }
-            final opened = await ref
-                .read(documentTreeAccessProvider)
-                .open(file, title: 'Open with');
-            if (!context.mounted) {
-              return;
-            }
-            if (!opened) {
-              _showMessage(
-                context,
-                'No external player was able to open this file.',
-              );
-            }
-          },
+          onContinuePlay: entry.hasResume && hasPlayableFile
+              ? () {
+                  Navigator.of(context).pushNamed(AppRoutes.player(mediaId));
+                }
+              : null,
+          onOpenExternal: hasPlayableFile
+              ? () async {
+                  final file = primaryVideo;
+                  if (!context.mounted) {
+                    return;
+                  }
+                  final opened = await ref
+                      .read(documentTreeAccessProvider)
+                      .open(file, title: 'Open with');
+                  if (!context.mounted) {
+                    return;
+                  }
+                  if (!opened) {
+                    _showMessage(
+                      context,
+                      'No external player was able to open this file.',
+                    );
+                  }
+                }
+              : null,
           onRatingChanged: (rating) {
             unawaited(
               ref.read(libraryActionsProvider).updateRating(mediaId, rating),
@@ -215,8 +250,30 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
   double _lastPlaybackSpeed = 1.0;
 
   @override
+  void initState() {
+    super.initState();
+    unawaited(
+      SystemChrome.setPreferredOrientations(const [
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]),
+    );
+    unawaited(
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
+    );
+  }
+
+  @override
   void dispose() {
     unawaited(_persistProgress());
+    unawaited(
+      SystemChrome.setPreferredOrientations(const [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]),
+    );
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
     final controller = _controller;
     _controller = null;
     unawaited(controller?.dispose());
@@ -301,6 +358,7 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
     }
     _initializing = true;
     _errorMessage = null;
+    _persisted = false;
 
     try {
       final file = await _resolvePrimaryVideo(ref, entry.item);
@@ -466,54 +524,11 @@ Future<DocumentFile?> _resolvePrimaryVideo(
   if (relativePath == null || relativePath.isEmpty) {
     return null;
   }
-  return _resolveRelativeDocument(
-    ref,
-    sourceId: item.sourceId,
-    relativePath: relativePath,
+  return ref.read(
+    relativeDocumentProvider(
+      RelativeAssetRequest(sourceId: item.sourceId, relativePath: relativePath),
+    ).future,
   );
-}
-
-Future<DocumentFile?> _resolveRelativeDocument(
-  WidgetRef ref, {
-  required String sourceId,
-  required String relativePath,
-}) async {
-  final database = ref.read(appDatabaseProvider);
-  final source = await (database.select(
-    database.mediaSourcesTable,
-  )..where((tbl) => tbl.id.equals(sourceId))).getSingleOrNull();
-
-  if (source == null) {
-    return null;
-  }
-
-  final access = ref.read(documentTreeAccessProvider);
-  final root = await access.resolve(source.rootUri);
-  if (root == null || !root.exists) {
-    return null;
-  }
-  DocumentFile current = root;
-
-  final segments = normalizePath(
-    relativePath,
-  ).split('/').where((segment) => segment.isNotEmpty).toList(growable: false);
-
-  for (final segment in segments) {
-    final children = await access.listChildren(current);
-    DocumentFile? next;
-    for (final child in children) {
-      if (child.name == segment) {
-        next = child;
-        break;
-      }
-    }
-    if (next == null) {
-      return null;
-    }
-    current = next;
-  }
-
-  return current;
 }
 
 void _showMessage(BuildContext context, String message) {

@@ -13,6 +13,7 @@ class DetailPage extends StatelessWidget {
     this.onOpenExternal,
     this.onRatingChanged,
     this.heroImage,
+    this.posterImage,
   });
 
   final MediaEntry entry;
@@ -21,6 +22,7 @@ class DetailPage extends StatelessWidget {
   final VoidCallback? onOpenExternal;
   final ValueChanged<double?>? onRatingChanged;
   final ImageProvider<Object>? heroImage;
+  final ImageProvider<Object>? posterImage;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class DetailPage extends StatelessWidget {
                     title: title,
                     subtitle: subtitle,
                     actorNames: item.actorNames,
+                    posterImage: posterImage,
                   ),
                   const SizedBox(height: 16),
                   _ActionRow(
@@ -169,11 +172,13 @@ class _PosterAndInfo extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.actorNames,
+    required this.posterImage,
   });
 
   final String title;
   final String subtitle;
   final List<String> actorNames;
+  final ImageProvider<Object>? posterImage;
 
   @override
   Widget build(BuildContext context) {
@@ -185,11 +190,16 @@ class _PosterAndInfo extends StatelessWidget {
           height: 184,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF243245), Color(0xFF1A2430)],
-            ),
+            gradient: posterImage == null
+                ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF243245), Color(0xFF1A2430)],
+                  )
+                : null,
+            image: posterImage == null
+                ? null
+                : DecorationImage(image: posterImage!, fit: BoxFit.cover),
             border: Border.all(color: AppPalette.glassBorder),
           ),
           child: Align(

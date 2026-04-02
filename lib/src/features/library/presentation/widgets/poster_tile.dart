@@ -6,9 +6,10 @@ import '../../../../app/theme/app_palette.dart';
 import '../../../../domain/entities/media_entry.dart';
 
 class PosterTile extends StatelessWidget {
-  const PosterTile({required this.entry, this.onTap, super.key});
+  const PosterTile({required this.entry, this.image, this.onTap, super.key});
 
   final MediaEntry entry;
+  final ImageProvider<Object>? image;
   final VoidCallback? onTap;
 
   @override
@@ -37,6 +38,25 @@ class PosterTile extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
+              if (image != null)
+                Positioned.fill(
+                  child: Image(image: image!, fit: BoxFit.cover),
+                ),
+              if (image != null)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.12),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               Align(
                 alignment: Alignment.topLeft,
                 child: Padding(

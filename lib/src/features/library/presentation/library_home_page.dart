@@ -7,6 +7,7 @@ import '../../../domain/entities/media_entry.dart';
 import '../../../domain/entities/media_item.dart';
 import '../../library/application/library_providers.dart';
 import '../../sources/application/sources_providers.dart';
+import '../../../shared/media/media_asset_resolver.dart';
 import '../../../shared/widgets/archive_bottom_bar.dart';
 import '../../../shared/widgets/frosted_background.dart';
 import '../../../shared/widgets/glass_panel.dart';
@@ -101,14 +102,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                           int index,
                         ) {
                           final entry = entries[index];
-                          return PosterTile(
-                            entry: entry,
-                            onTap: () {
-                              Navigator.of(
-                                context,
-                              ).pushNamed(AppRoutes.detail(entry.item.id));
-                            },
-                          );
+                          return _PosterTileWithArtwork(entry: entry);
                         }, childCount: entries.length),
                       ),
                     ),
@@ -220,37 +214,75 @@ class _HeaderSection extends StatelessWidget {
             letterSpacing: 0.6,
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          'Library',
-          style: textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            height: 1.05,
-          ),
-        ),
-        const SizedBox(height: 10),
-        GlassPanel(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          borderRadius: BorderRadius.circular(16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Icon(
-                Icons.folder_open_rounded,
-                size: 18,
-                color: AppPalette.success,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$sourceCount sources • $mediaCount indexed',
-                style: textTheme.labelLarge?.copyWith(
-                  color: AppPalette.textSecondary,
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                'Library',
+                style: textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1.05,
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            GlassPanel(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              borderRadius: BorderRadius.circular(16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(
+                    Icons.folder_open_rounded,
+                    size: 18,
+                    color: AppPalette.success,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$sourceCount sources • $mediaCount indexed',
+                    style: textTheme.labelLarge?.copyWith(
+                      color: AppPalette.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+class _PosterTileWithArtwork extends ConsumerWidget {
+  const _PosterTileWithArtwork({required this.entry});
+
+  final MediaEntry entry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final relativePath = entry.item.posterRelativePath;
+    final artworkAsync = relativePath == null
+        ? null
+        : ref.watch(
+            relativeImageFileProvider(
+              RelativeAssetRequest(
+                sourceId: entry.item.sourceId,
+                relativePath: relativePath,
+              ),
+            ),
+          );
+
+    final image = artworkAsync?.asData?.value;
+
+    return PosterTile(
+      entry: entry,
+      image: image == null ? null : FileImage(image),
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.detail(entry.item.id));
+      },
     );
   }
 }

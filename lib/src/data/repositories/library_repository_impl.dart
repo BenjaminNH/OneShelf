@@ -212,8 +212,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
 
     if (titleQueryLike != null) {
       query.where(
-        _database.mediaItemsTable.fileName.lower().like(titleQueryLike) |
-            _database.mediaItemsTable.displayLabel.lower().like(titleQueryLike),
+        _database.mediaItemsTable.fileName.lower().like(titleQueryLike),
       );
     }
 
