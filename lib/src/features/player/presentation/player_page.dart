@@ -48,10 +48,19 @@ class PlayerPage extends StatefulWidget {
 class _PlayerPageState extends State<PlayerPage> {
   bool _showOverlay = true;
   Timer? _overlayTimer;
+  _GestureFeedback? _gestureFeedback;
+  Timer? _gestureFeedbackTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleOverlayDismiss();
+  }
 
   @override
   void dispose() {
     _overlayTimer?.cancel();
+    _gestureFeedbackTimer?.cancel();
     super.dispose();
   }
 
@@ -78,29 +87,75 @@ class _PlayerPageState extends State<PlayerPage> {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onDoubleTap: () =>
-                          widget.onSeekRelative?.call(-widget.backwardSeek),
+                      behavior: HitTestBehavior.opaque,
+                      onDoubleTap: () {
+                        widget.onSeekRelative?.call(-widget.backwardSeek);
+                        _showGestureFeedback(
+                          _GestureFeedback(
+                            icon: Icons.replay_10_rounded,
+                            label: '-${widget.backwardSeek.inSeconds}s',
+                          ),
+                        );
+                      },
                       child: const SizedBox.expand(),
                     ),
                   ),
                   Expanded(
                     child: GestureDetector(
-                      onDoubleTap: widget.onPlayPause,
+                      behavior: HitTestBehavior.opaque,
+                      onDoubleTap: () {
+                        widget.onPlayPause?.call();
+                        _showGestureFeedback(
+                          _GestureFeedback(
+                            icon: widget.isPlaying
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            label: widget.isPlaying ? 'Pause' : 'Play',
+                          ),
+                        );
+                      },
                       child: const SizedBox.expand(),
                     ),
                   ),
                   Expanded(
                     child: GestureDetector(
-                      onDoubleTap: () =>
-                          widget.onSeekRelative?.call(widget.forwardSeek),
-                      onLongPressStart: (_) => widget.onHoldSpeedStart?.call(),
-                      onLongPressEnd: (_) => widget.onHoldSpeedEnd?.call(),
+                      behavior: HitTestBehavior.opaque,
+                      onDoubleTap: () {
+                        widget.onSeekRelative?.call(widget.forwardSeek);
+                        _showGestureFeedback(
+                          _GestureFeedback(
+                            icon: Icons.forward_10_rounded,
+                            label: '+${widget.forwardSeek.inSeconds}s',
+                          ),
+                        );
+                      },
+                      onLongPressStart: (_) {
+                        widget.onHoldSpeedStart?.call();
+                        _showGestureFeedback(
+                          _GestureFeedback(
+                            icon: Icons.speed_rounded,
+                            label: widget.holdSpeedLabel,
+                          ),
+                        );
+                      },
+                      onLongPressEnd: (_) {
+                        widget.onHoldSpeedEnd?.call();
+                        _clearGestureFeedback();
+                      },
                       child: const SizedBox.expand(),
                     ),
                   ),
                 ],
               ),
             ),
+            if (_gestureFeedback != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Center(
+                    child: _GestureFeedbackBadge(feedback: _gestureFeedback!),
+                  ),
+                ),
+              ),
             AnimatedOpacity(
               opacity: _showOverlay ? 1 : 0,
               duration: const Duration(milliseconds: 180),
@@ -143,6 +198,8 @@ class _PlayerPageState extends State<PlayerPage> {
     });
     if (_showOverlay) {
       _scheduleOverlayDismiss();
+    } else {
+      _overlayTimer?.cancel();
     }
   }
 
@@ -153,6 +210,29 @@ class _PlayerPageState extends State<PlayerPage> {
       setState(() {
         _showOverlay = false;
       });
+    });
+  }
+
+  void _showGestureFeedback(_GestureFeedback feedback) {
+    _gestureFeedbackTimer?.cancel();
+    setState(() {
+      _gestureFeedback = feedback;
+    });
+    _gestureFeedbackTimer = Timer(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      setState(() {
+        _gestureFeedback = null;
+      });
+    });
+  }
+
+  void _clearGestureFeedback() {
+    _gestureFeedbackTimer?.cancel();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _gestureFeedback = null;
     });
   }
 }
@@ -321,29 +401,12 @@ class _PlayerOverlay extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: _HintCard(
-                      title: 'Double tap left',
-                      body: 'Jump backward',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _HintCard(
-                      title: 'Double tap right',
-                      body: 'Jump forward',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _HintCard(
-                      title: 'Long press right',
-                      body: 'Temporary $holdSpeedLabel',
-                    ),
-                  ),
-                ],
+              Text(
+                'Double-tap left or right to seek. Long-press the right side for $holdSpeedLabel.',
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppPalette.textMuted),
               ),
             ],
           ),
@@ -422,40 +485,39 @@ class _RoundIconButton extends StatelessWidget {
   }
 }
 
-class _HintCard extends StatelessWidget {
-  const _HintCard({required this.title, required this.body});
+class _GestureFeedback {
+  const _GestureFeedback({required this.icon, required this.label});
 
-  final String title;
-  final String body;
+  final IconData icon;
+  final String label;
+}
+
+class _GestureFeedbackBadge extends StatelessWidget {
+  const _GestureFeedbackBadge({required this.feedback});
+
+  final _GestureFeedback feedback;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppPalette.glass,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.black.withValues(alpha: 0.66),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppPalette.glassBorder),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Icon(feedback.icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
             Text(
-              title,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppPalette.textSecondary,
-                fontWeight: FontWeight.w600,
+              feedback.label,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              body,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppPalette.textMuted),
             ),
           ],
         ),

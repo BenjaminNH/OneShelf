@@ -53,7 +53,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                     sliver: SliverList.list(
                       children: <Widget>[
                         _HeaderSection(mediaCount: entries.length),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         if (recentEntries.isNotEmpty) ...<Widget>[
                           _RecentSection(entries: recentEntries),
                           const SizedBox(height: 14),

@@ -59,10 +59,10 @@ class DetailPage extends StatelessWidget {
                     hasResume: entry.hasResume,
                     onPlay: onPlay,
                     onContinuePlay: onContinuePlay,
+                    onOpenExternal: onOpenExternal,
                   ),
                   const SizedBox(height: 12),
-                  _SecondaryActions(
-                    onOpenExternal: onOpenExternal,
+                  _RatingCard(
                     currentRating: entry.userState?.ratingValue,
                     onRatingChanged: onRatingChanged,
                   ),
@@ -290,11 +290,13 @@ class _ActionRow extends StatelessWidget {
     required this.hasResume,
     required this.onPlay,
     required this.onContinuePlay,
+    required this.onOpenExternal,
   });
 
   final bool hasResume;
   final VoidCallback? onPlay;
   final VoidCallback? onContinuePlay;
+  final VoidCallback? onOpenExternal;
 
   @override
   Widget build(BuildContext context) {
@@ -326,64 +328,39 @@ class _ActionRow extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 108,
+          child: OutlinedButton.icon(
+            onPressed: onOpenExternal,
+            icon: const Icon(Icons.open_in_new_rounded, size: 18),
+            label: const Text('Open'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+              foregroundColor: AppPalette.textPrimary,
+              side: const BorderSide(color: AppPalette.glassBorder),
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
-class _SecondaryActions extends StatelessWidget {
-  const _SecondaryActions({
-    required this.onOpenExternal,
+class _RatingCard extends StatelessWidget {
+  const _RatingCard({
     required this.currentRating,
     required this.onRatingChanged,
   });
 
-  final VoidCallback? onOpenExternal;
   final double? currentRating;
   final ValueChanged<double?>? onRatingChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _GlassCard(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'External player',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppPalette.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FilledButton.tonalIcon(
-                  onPressed: onOpenExternal,
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: const Text('Open'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(42),
-                    foregroundColor: AppPalette.textPrimary,
-                    backgroundColor: AppPalette.glassStrong,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _GlassCard(
-            padding: const EdgeInsets.all(12),
-            child: _RatingSelector(
-              rating: currentRating,
-              onChanged: onRatingChanged,
-            ),
-          ),
-        ),
-      ],
+    return _GlassCard(
+      padding: const EdgeInsets.all(12),
+      child: _RatingSelector(rating: currentRating, onChanged: onRatingChanged),
     );
   }
 }
@@ -437,19 +414,30 @@ class _RatingSelectorState extends State<_RatingSelector> {
             fontWeight: FontWeight.w700,
           ),
         ),
-        Slider(
-          value: _value ?? 0,
-          min: 0,
-          max: 10,
-          divisions: 20,
-          activeColor: AppPalette.accent,
-          inactiveColor: AppPalette.glassStrong,
-          onChanged: (value) {
-            setState(() {
-              _value = value;
-            });
-          },
-          onChangeEnd: (value) => widget.onChanged?.call(value),
+        const SizedBox(height: 6),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: AppPalette.accent,
+            inactiveTrackColor: AppPalette.glassStrong,
+            thumbColor: AppPalette.accentStrong,
+            overlayColor: AppPalette.accent.withValues(alpha: 0.18),
+            trackHeight: 4,
+            activeTickMarkColor: AppPalette.accentStrong,
+            inactiveTickMarkColor: AppPalette.textMuted,
+            tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 1.8),
+          ),
+          child: Slider(
+            value: _value ?? 0,
+            min: 0,
+            max: 10,
+            divisions: 20,
+            onChanged: (value) {
+              setState(() {
+                _value = value;
+              });
+            },
+            onChangeEnd: (value) => widget.onChanged?.call(value),
+          ),
         ),
         TextButton(
           onPressed: _value == null
