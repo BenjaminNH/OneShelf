@@ -26,6 +26,8 @@ class DetailRoutePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final documentTreeAccess = ref.read(documentTreeAccessProvider);
+    final libraryActions = ref.read(libraryActionsProvider);
     final entryAsync = ref.watch(mediaEntryProvider(mediaId));
     return entryAsync.when(
       loading: () => const _RouteLoadingPage(label: 'Loading media details...'),
@@ -90,9 +92,10 @@ class DetailRoutePage extends ConsumerWidget {
                   if (!context.mounted) {
                     return;
                   }
-                  final opened = await ref
-                      .read(documentTreeAccessProvider)
-                      .open(file, title: 'Open with');
+                  final opened = await documentTreeAccess.open(
+                    file,
+                    title: 'Open with',
+                  );
                   if (!context.mounted) {
                     return;
                   }
@@ -105,9 +108,7 @@ class DetailRoutePage extends ConsumerWidget {
                 }
               : null,
           onRatingChanged: (rating) {
-            unawaited(
-              ref.read(libraryActionsProvider).updateRating(mediaId, rating),
-            );
+            unawaited(libraryActions.updateRating(mediaId, rating));
           },
         );
       },
@@ -120,6 +121,11 @@ class SettingsRoutePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final libraryActions = ref.read(libraryActionsProvider);
+    final settingsActions = ref.read(settingsActionsProvider);
+    final lastScanReportNotifier = ref.read(
+      sourceLastScanReportProvider.notifier,
+    );
     final settingsAsync = ref.watch(appSettingsProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
     final latestReport = ref.watch(sourceLastScanReportProvider);
@@ -145,10 +151,8 @@ class SettingsRoutePage extends ConsumerWidget {
             Navigator.of(context).pushNamed(AppRoutes.sources);
           },
           onRescanAll: () async {
-            final report = await ref
-                .read(libraryActionsProvider)
-                .scanAllSources();
-            ref.read(sourceLastScanReportProvider.notifier).setReport(report);
+            final report = await libraryActions.scanAllSources();
+            lastScanReportNotifier.setReport(report);
             if (context.mounted) {
               _showMessage(
                 context,
@@ -159,16 +163,16 @@ class SettingsRoutePage extends ConsumerWidget {
             }
           },
           onSave: (nextSettings) {
-            unawaited(ref.read(settingsActionsProvider).save(nextSettings));
+            unawaited(settingsActions.save(nextSettings));
           },
           onClearCache: () async {
-            await ref.read(settingsActionsProvider).clearImageCache();
+            await settingsActions.clearImageCache();
             if (context.mounted) {
               _showMessage(context, 'Image cache cleared.');
             }
           },
           onRebuildLibrary: () async {
-            await ref.read(libraryActionsProvider).rebuildLibrary();
+            await libraryActions.rebuildLibrary();
             if (context.mounted) {
               _showMessage(context, 'Library rebuilt from local sources.');
             }
@@ -184,6 +188,7 @@ class MediaSourcesRoutePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sourcesActions = ref.read(sourcesActionsProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
     return sourcesAsync.when(
       loading: () => const _RouteLoadingPage(label: 'Loading sources...'),
@@ -193,18 +198,16 @@ class MediaSourcesRoutePage extends ConsumerWidget {
         return MediaSourcesPage(
           sources: sources,
           onAddSource: () async {
-            final source = await ref.read(sourcesActionsProvider).addSource();
+            final source = await sourcesActions.addSource();
             if (source != null) {
-              await ref.read(sourcesActionsProvider).rescanSource(source.id);
+              await sourcesActions.rescanSource(source.id);
               if (context.mounted) {
                 _showMessage(context, 'Source added and initial scan started.');
               }
             }
           },
           onRescan: (sourceId) async {
-            final report = await ref
-                .read(sourcesActionsProvider)
-                .rescanSource(sourceId);
+            final report = await sourcesActions.rescanSource(sourceId);
             if (context.mounted) {
               _showMessage(
                 context,
@@ -215,13 +218,13 @@ class MediaSourcesRoutePage extends ConsumerWidget {
             }
           },
           onReauthorize: (sourceId) async {
-            await ref.read(sourcesActionsProvider).reauthorizeSource(sourceId);
+            await sourcesActions.reauthorizeSource(sourceId);
             if (context.mounted) {
               _showMessage(context, 'Permission refreshed for this source.');
             }
           },
           onRemove: (sourceId) async {
-            await ref.read(sourcesActionsProvider).removeSource(sourceId);
+            await sourcesActions.removeSource(sourceId);
             if (context.mounted) {
               _showMessage(context, 'Source removed from the library.');
             }
@@ -248,10 +251,12 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
   String? _loadedMediaId;
   String? _errorMessage;
   double _lastPlaybackSpeed = 1.0;
+  late final LibraryActions _libraryActions;
 
   @override
   void initState() {
     super.initState();
+    _libraryActions = ref.read(libraryActionsProvider);
     unawaited(
       SystemChrome.setPreferredOrientations(const [
         DeviceOrientation.landscapeLeft,
@@ -465,14 +470,12 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
     final positionMs = controller.value.position.inMilliseconds;
     final isFinished = durationMs > 0 && positionMs / durationMs >= 0.95;
 
-    await ref
-        .read(libraryActionsProvider)
-        .updatePlayback(
-          mediaId: widget.mediaId,
-          positionMs: positionMs,
-          durationMs: durationMs,
-          isFinished: isFinished,
-        );
+    await _libraryActions.updatePlayback(
+      mediaId: widget.mediaId,
+      positionMs: positionMs,
+      durationMs: durationMs,
+      isFinished: isFinished,
+    );
   }
 }
 
