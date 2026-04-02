@@ -21,15 +21,11 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 }
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
-  static const List<String> _modes = <String>['All', 'Actor', 'Folder'];
-  int _activeModeIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     final entriesAsync = ref.watch(libraryEntriesProvider);
     final recentAsync = ref.watch(recentEntriesProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
-    final sort = ref.watch(librarySortProvider);
 
     final entries = entriesAsync.asData?.value ?? const <MediaEntry>[];
     final recentEntries = recentAsync.asData?.value ?? const <MediaEntry>[];
@@ -48,35 +44,18 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
               child: CustomScrollView(
                 slivers: <Widget>[
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(18, 20, 18, 130),
+                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 130),
                     sliver: SliverList.list(
                       children: <Widget>[
                         _HeaderSection(
                           mediaCount: entries.length,
                           sourceCount: sources.length,
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 14),
                         if (recentEntries.isNotEmpty) ...<Widget>[
                           _RecentSection(entries: recentEntries),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                         ],
-                        _ArchiveHeading(sort: sort, onSortTap: _showSortMenu),
-                        const SizedBox(height: 12),
-                        _ModeRow(
-                          modes: _modes,
-                          selectedIndex: _activeModeIndex,
-                          onModeSelected: (int index) {
-                            setState(() {
-                              _activeModeIndex = index;
-                            });
-                            if (index != 0) {
-                              _showInfo(
-                                'Actor and folder browse are planned next. The archive stays focused on the core MVP flow for now.',
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 14),
                         if (isLoading) const _LoadingCard(),
                         if (!isLoading && entries.isEmpty)
                           _EmptyLibraryCard(
@@ -122,11 +101,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                   onSettingsTap: () {
                     Navigator.of(context).pushNamed(AppRoutes.settings);
                   },
-                  onLeftTap: () {
-                    _showInfo(
-                      'The bottom archive bar is ready for richer browse modes after the MVP core is stable.',
-                    );
-                  },
+                  onLeftTap: _showSortMenu,
+                  leftIcon: Icons.swap_vert_rounded,
+                  leftTooltip: 'Sort archive',
                 ),
               ),
             ),
@@ -207,14 +184,6 @@ class _HeaderSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Frosted Archive',
-          style: textTheme.labelLarge?.copyWith(
-            color: AppPalette.textSecondary,
-            letterSpacing: 0.6,
-          ),
-        ),
-        const SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -340,83 +309,6 @@ class _RecentSection extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ArchiveHeading extends StatelessWidget {
-  const _ArchiveHeading({required this.sort, required this.onSortTap});
-
-  final MediaSort sort;
-  final VoidCallback onSortTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final sortLabel = switch (sort) {
-      MediaSort.recentlyAdded => 'Recently added',
-      MediaSort.title => 'Title',
-      MediaSort.lastPlayed => 'Last played',
-    };
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        Text(
-          'Browse archive',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const Spacer(),
-        TextButton.icon(
-          onPressed: onSortTap,
-          style: TextButton.styleFrom(
-            foregroundColor: AppPalette.textSecondary,
-            visualDensity: VisualDensity.compact,
-          ),
-          icon: const Icon(Icons.swap_vert_rounded, size: 16),
-          label: Text(sortLabel),
-        ),
-      ],
-    );
-  }
-}
-
-class _ModeRow extends StatelessWidget {
-  const _ModeRow({
-    required this.modes,
-    required this.selectedIndex,
-    required this.onModeSelected,
-  });
-
-  final List<String> modes;
-  final int selectedIndex;
-  final ValueChanged<int> onModeSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      children: List<Widget>.generate(modes.length, (int index) {
-        final selected = index == selectedIndex;
-        return ChoiceChip(
-          selected: selected,
-          onSelected: (_) => onModeSelected(index),
-          label: Text(modes[index]),
-          selectedColor: AppPalette.accentDim.withValues(alpha: 0.9),
-          labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: selected
-                ? AppPalette.accentStrong
-                : AppPalette.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-          side: BorderSide(
-            color: selected ? AppPalette.accent : AppPalette.glassBorder,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-        );
-      }),
     );
   }
 }

@@ -8,12 +8,16 @@ class ArchiveBottomBar extends StatelessWidget {
     required this.onSearchTap,
     required this.onSettingsTap,
     this.onLeftTap,
+    this.leftIcon = Icons.auto_awesome_outlined,
+    this.leftTooltip = 'Archive modes',
     super.key,
   });
 
   final VoidCallback onSearchTap;
   final VoidCallback onSettingsTap;
   final VoidCallback? onLeftTap;
+  final IconData leftIcon;
+  final String leftTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +30,8 @@ class ArchiveBottomBar extends StatelessWidget {
         child: Row(
           children: <Widget>[
             _CircleIconButton(
-              icon: Icons.auto_awesome_outlined,
-              tooltip: 'Archive modes',
+              icon: leftIcon,
+              tooltip: leftTooltip,
               onTap: onLeftTap,
             ),
             const SizedBox(width: 10),

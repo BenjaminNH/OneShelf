@@ -91,13 +91,23 @@ class MediaSourcesRepositoryImpl implements MediaSourcesRepository {
 
   @override
   Future<void> removeSource(String sourceId) async {
-    await (_database.delete(
-      _database.mediaSourcesTable,
-    )..where((tbl) => tbl.id.equals(sourceId))).go();
+    await _database.transaction(() async {
+      await (_database.delete(
+        _database.scanSessionsTable,
+      )..where((tbl) => tbl.sourceId.equals(sourceId))).go();
 
-    await _database.customStatement(
-      'DELETE FROM media_user_states_table WHERE media_id NOT IN (SELECT id FROM media_items_table)',
-    );
+      await (_database.delete(
+        _database.mediaItemsTable,
+      )..where((tbl) => tbl.sourceId.equals(sourceId))).go();
+
+      await (_database.delete(
+        _database.mediaSourcesTable,
+      )..where((tbl) => tbl.id.equals(sourceId))).go();
+
+      await _database.customStatement(
+        'DELETE FROM media_user_states_table WHERE media_id NOT IN (SELECT id FROM media_items_table)',
+      );
+    });
   }
 
   @override
