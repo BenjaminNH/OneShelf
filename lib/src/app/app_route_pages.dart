@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:docman/docman.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -169,7 +170,10 @@ class SettingsRoutePage extends ConsumerWidget {
     final settingsAsync = ref.watch(appSettingsProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
     final latestReport = ref.watch(sourceLastScanReportProvider);
-    final debugLogPathAsync = ref.watch(debugLogPathProvider);
+    final showProfileLogging = !kReleaseMode;
+    final debugLogPathAsync = showProfileLogging
+        ? ref.watch(debugLogPathProvider)
+        : const AsyncValue<String?>.data(null);
 
     return settingsAsync.when(
       loading: () => const _RouteLoadingPage(label: 'Loading settings...'),
@@ -188,6 +192,7 @@ class SettingsRoutePage extends ConsumerWidget {
           permissionHealthLabel: lostCount == 0
               ? 'Healthy'
               : '$lostCount source(s) need attention',
+          showProfileLogging: showProfileLogging,
           debugLogPathLabel: debugLogPathAsync.asData?.value,
           onManageSources: () {
             Navigator.of(context).pushNamed(AppRoutes.sources);
@@ -219,24 +224,28 @@ class SettingsRoutePage extends ConsumerWidget {
               _showMessage(context, 'Library rebuilt from local sources.');
             }
           },
-          onShareDebugLog: () async {
-            final shared = await settingsActions.shareDebugLog();
-            if (context.mounted) {
-              _showMessage(
-                context,
-                shared
-                    ? 'Profile log ready to share.'
-                    : 'Profile log is not available yet.',
-              );
-            }
-          },
-          onClearDebugLog: () async {
-            await settingsActions.clearDebugLog();
-            ref.invalidate(debugLogPathProvider);
-            if (context.mounted) {
-              _showMessage(context, 'Profile log cleared.');
-            }
-          },
+          onShareDebugLog: showProfileLogging
+              ? () async {
+                  final shared = await settingsActions.shareDebugLog();
+                  if (context.mounted) {
+                    _showMessage(
+                      context,
+                      shared
+                          ? 'Profile log ready to share.'
+                          : 'Profile log is not available yet.',
+                    );
+                  }
+                }
+              : null,
+          onClearDebugLog: showProfileLogging
+              ? () async {
+                  await settingsActions.clearDebugLog();
+                  ref.invalidate(debugLogPathProvider);
+                  if (context.mounted) {
+                    _showMessage(context, 'Profile log cleared.');
+                  }
+                }
+              : null,
         );
       },
     );
