@@ -50,6 +50,8 @@ class _PlayerPageState extends State<PlayerPage> {
   Timer? _overlayTimer;
   _GestureFeedback? _gestureFeedback;
   Timer? _gestureFeedbackTimer;
+  double? _horizontalDragStartDx;
+  Duration _pendingSeekDelta = Duration.zero;
 
   @override
   void initState() {
@@ -75,8 +77,13 @@ class _PlayerPageState extends State<PlayerPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
+        key: const Key('player-gesture-layer'),
         behavior: HitTestBehavior.opaque,
         onTap: _toggleOverlay,
+        onHorizontalDragStart: _handleHorizontalDragStart,
+        onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+        onHorizontalDragEnd: _handleHorizontalDragEnd,
+        onHorizontalDragCancel: _handleHorizontalDragCancel,
         child: Stack(
           children: [
             Positioned.fill(
@@ -233,6 +240,89 @@ class _PlayerPageState extends State<PlayerPage> {
     }
     setState(() {
       _gestureFeedback = null;
+    });
+  }
+
+  void _handleHorizontalDragStart(DragStartDetails details) {
+    _overlayTimer?.cancel();
+    _horizontalDragStartDx = details.globalPosition.dx;
+    _pendingSeekDelta = Duration.zero;
+  }
+
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    final startDx = _horizontalDragStartDx;
+    if (startDx == null) {
+      return;
+    }
+    final deltaX = details.globalPosition.dx - startDx;
+    final delta = _dragOffsetToSeek(deltaX);
+    _pendingSeekDelta = delta;
+    if (delta == Duration.zero) {
+      _clearGestureFeedback();
+      return;
+    }
+    _showPersistentGestureFeedback(
+      _GestureFeedback(
+        icon: delta.isNegative
+            ? Icons.fast_rewind_rounded
+            : Icons.fast_forward_rounded,
+        label: _formatSeekDelta(delta),
+      ),
+    );
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    final delta = _pendingSeekDelta;
+    _horizontalDragStartDx = null;
+    _pendingSeekDelta = Duration.zero;
+    if (delta == Duration.zero) {
+      _clearGestureFeedback();
+      _scheduleOverlayDismiss();
+      return;
+    }
+    widget.onSeekRelative?.call(delta);
+    _showGestureFeedback(
+      _GestureFeedback(
+        icon: delta.isNegative
+            ? Icons.fast_rewind_rounded
+            : Icons.fast_forward_rounded,
+        label: _formatSeekDelta(delta),
+      ),
+    );
+    _scheduleOverlayDismiss();
+  }
+
+  void _handleHorizontalDragCancel() {
+    _horizontalDragStartDx = null;
+    _pendingSeekDelta = Duration.zero;
+    _clearGestureFeedback();
+    _scheduleOverlayDismiss();
+  }
+
+  Duration _dragOffsetToSeek(double deltaX) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width <= 0) {
+      return Duration.zero;
+    }
+    final totalMs = widget.total.inMilliseconds;
+    final maxSeekMs = totalMs <= 0
+        ? 180000
+        : (totalMs * 0.08).round().clamp(60000, 600000);
+    final rawMs = (deltaX / width) * maxSeekMs;
+    final roundedMs = (rawMs / 1000).round() * 1000;
+    if (roundedMs.abs() < 2000) {
+      return Duration.zero;
+    }
+    return Duration(milliseconds: roundedMs);
+  }
+
+  void _showPersistentGestureFeedback(_GestureFeedback feedback) {
+    _gestureFeedbackTimer?.cancel();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _gestureFeedback = feedback;
     });
   }
 }
@@ -402,7 +492,7 @@ class _PlayerOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Double-tap left or right to seek. Long-press the right side for $holdSpeedLabel.',
+                'Double-tap left or right to seek. Swipe left or right for variable seek. Long-press the right side for $holdSpeedLabel.',
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
@@ -414,6 +504,17 @@ class _PlayerOverlay extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatSeekDelta(Duration value) {
+  final seconds = value.inSeconds.abs();
+  final minutes = seconds ~/ 60;
+  final remainingSeconds = seconds % 60;
+  final prefix = value.isNegative ? '-' : '+';
+  if (minutes > 0) {
+    return '$prefix${minutes}m ${remainingSeconds}s';
+  }
+  return '$prefix${remainingSeconds}s';
 }
 
 class _ChipButton extends StatelessWidget {

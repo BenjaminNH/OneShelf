@@ -462,6 +462,7 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
       if (resumePosition != null && resumePosition > 0) {
         await controller.seekTo(Duration(milliseconds: resumePosition));
       }
+      await controller.play();
 
       if (!mounted) {
         await controller.dispose();
