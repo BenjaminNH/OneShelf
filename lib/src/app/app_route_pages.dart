@@ -17,6 +17,8 @@ import '../features/settings/presentation/settings_page.dart';
 import '../features/sources/application/sources_providers.dart';
 import '../features/sources/presentation/media_sources_page.dart';
 import '../core/navigation/app_routes.dart';
+import '../shared/debug/app_debug_logger.dart';
+import '../shared/media/local_video_metadata.dart';
 import '../shared/media/media_asset_resolver.dart';
 
 class DetailRoutePage extends ConsumerWidget {
@@ -28,6 +30,7 @@ class DetailRoutePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final documentTreeAccess = ref.read(documentTreeAccessProvider);
     final libraryActions = ref.read(libraryActionsProvider);
+    final debugLogger = ref.read(appDebugLoggerProvider);
     final entryAsync = ref.watch(mediaEntryProvider(mediaId));
     return entryAsync.when(
       loading: () => const _RouteLoadingPage(label: 'Loading media details...'),
@@ -37,23 +40,45 @@ class DetailRoutePage extends ConsumerWidget {
         if (entry == null) {
           return const _RouteErrorPage(message: 'Media item not found.');
         }
-        final primaryVideoAsync = entry.item.primaryVideoRelativePath == null
-            ? null
-            : ref.watch(
-                relativeDocumentProvider(
-                  RelativeAssetRequest(
-                    sourceId: entry.item.sourceId,
-                    relativePath: entry.item.primaryVideoRelativePath!,
+        final hasPlayableFile =
+            (entry.item.primaryVideoUri?.isNotEmpty ?? false) ||
+            (entry.item.primaryVideoRelativePath?.isNotEmpty ?? false);
+        unawaited(
+          debugLogger.log(
+            scope: 'detail',
+            event: 'route_entry_loaded',
+            fields: <String, Object?>{
+              'mediaId': entry.item.id,
+              'hasPlayableFile': hasPlayableFile,
+              'hasPoster': entry.item.posterRelativePath != null,
+              'hasFanart': entry.item.fanartRelativePath != null,
+            },
+          ),
+        );
+        final metadataAsync =
+            (entry.item.primaryVideoUri?.isNotEmpty ?? false) &&
+                (entry.item.durationMs == null ||
+                    entry.item.width == null ||
+                    entry.item.height == null)
+            ? ref.watch(
+                localVideoMetadataProvider(
+                  LocalVideoMetadataRequest(
+                    mediaId: entry.item.id,
+                    uri: entry.item.primaryVideoUri!,
                   ),
                 ),
-              );
+              )
+            : null;
         final posterAsync = entry.item.posterRelativePath == null
             ? null
             : ref.watch(
                 relativeImageFileProvider(
-                  RelativeAssetRequest(
+                  RelativeImageRequest(
                     sourceId: entry.item.sourceId,
                     relativePath: entry.item.posterRelativePath!,
+                    uri: entry.item.posterUri,
+                    lastModified: entry.item.posterLastModified,
+                    variant: RelativeImageVariant.posterDetail,
                   ),
                 ),
               );
@@ -61,19 +86,25 @@ class DetailRoutePage extends ConsumerWidget {
             ? null
             : ref.watch(
                 relativeImageFileProvider(
-                  RelativeAssetRequest(
+                  RelativeImageRequest(
                     sourceId: entry.item.sourceId,
                     relativePath: entry.item.fanartRelativePath!,
+                    uri: entry.item.fanartUri,
+                    lastModified: entry.item.fanartLastModified,
+                    variant: RelativeImageVariant.fanartPreview,
                   ),
                 ),
               );
-        final primaryVideo = primaryVideoAsync?.asData?.value;
+        final metadata = metadataAsync?.asData?.value;
         final posterFile = posterAsync?.asData?.value;
         final fanartFile = fanartAsync?.asData?.value;
-        final hasPlayableFile = primaryVideo != null;
 
         return DetailPage(
           entry: entry,
+          effectiveDurationMs: metadata?.durationMs,
+          effectiveWidth: metadata?.width,
+          effectiveHeight: metadata?.height,
+          isResolvingTechnicalMetadata: metadataAsync?.isLoading ?? false,
           heroImage: fanartFile == null ? null : FileImage(fanartFile),
           posterImage: posterFile == null ? null : FileImage(posterFile),
           onPlay: hasPlayableFile
@@ -88,7 +119,16 @@ class DetailRoutePage extends ConsumerWidget {
               : null,
           onOpenExternal: hasPlayableFile
               ? () async {
-                  final file = primaryVideo;
+                  final file = await _resolvePrimaryVideo(ref, entry.item);
+                  if (file == null) {
+                    if (context.mounted) {
+                      _showMessage(
+                        context,
+                        'Unable to resolve the local video file.',
+                      );
+                    }
+                    return;
+                  }
                   if (!context.mounted) {
                     return;
                   }
@@ -129,6 +169,7 @@ class SettingsRoutePage extends ConsumerWidget {
     final settingsAsync = ref.watch(appSettingsProvider);
     final sourcesAsync = ref.watch(mediaSourcesProvider);
     final latestReport = ref.watch(sourceLastScanReportProvider);
+    final debugLogPathAsync = ref.watch(debugLogPathProvider);
 
     return settingsAsync.when(
       loading: () => const _RouteLoadingPage(label: 'Loading settings...'),
@@ -147,6 +188,7 @@ class SettingsRoutePage extends ConsumerWidget {
           permissionHealthLabel: lostCount == 0
               ? 'Healthy'
               : '$lostCount source(s) need attention',
+          debugLogPathLabel: debugLogPathAsync.asData?.value,
           onManageSources: () {
             Navigator.of(context).pushNamed(AppRoutes.sources);
           },
@@ -175,6 +217,24 @@ class SettingsRoutePage extends ConsumerWidget {
             await libraryActions.rebuildLibrary();
             if (context.mounted) {
               _showMessage(context, 'Library rebuilt from local sources.');
+            }
+          },
+          onShareDebugLog: () async {
+            final shared = await settingsActions.shareDebugLog();
+            if (context.mounted) {
+              _showMessage(
+                context,
+                shared
+                    ? 'Profile log ready to share.'
+                    : 'Profile log is not available yet.',
+              );
+            }
+          },
+          onClearDebugLog: () async {
+            await settingsActions.clearDebugLog();
+            ref.invalidate(debugLogPathProvider);
+            if (context.mounted) {
+              _showMessage(context, 'Profile log cleared.');
             }
           },
         );
@@ -252,11 +312,13 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
   String? _errorMessage;
   double _lastPlaybackSpeed = 1.0;
   late final LibraryActions _libraryActions;
+  late final AppDebugLogger _debugLogger;
 
   @override
   void initState() {
     super.initState();
     _libraryActions = ref.read(libraryActionsProvider);
+    _debugLogger = ref.read(appDebugLoggerProvider);
     unawaited(
       SystemChrome.setPreferredOrientations(const [
         DeviceOrientation.landscapeLeft,
@@ -364,6 +426,7 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
     _initializing = true;
     _errorMessage = null;
     _persisted = false;
+    final stopwatch = Stopwatch()..start();
 
     try {
       final file = await _resolvePrimaryVideo(ref, entry.item);
@@ -374,6 +437,26 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
       final controller = VideoPlayerController.contentUri(Uri.parse(file.uri));
       await controller.initialize();
       controller.addListener(_onControllerChanged);
+      final initializedDurationMs = controller.value.duration.inMilliseconds;
+      final initializedSize = controller.value.size;
+      if (initializedDurationMs > 0 ||
+          initializedSize.width > 0 ||
+          initializedSize.height > 0) {
+        unawaited(
+          _libraryActions.updateTechnicalMetadata(
+            mediaId: entry.item.id,
+            durationMs: initializedDurationMs > 0
+                ? initializedDurationMs
+                : null,
+            width: initializedSize.width > 0
+                ? initializedSize.width.round()
+                : null,
+            height: initializedSize.height > 0
+                ? initializedSize.height.round()
+                : null,
+          ),
+        );
+      }
 
       final resumePosition = entry.userState?.lastPositionMs;
       if (resumePosition != null && resumePosition > 0) {
@@ -392,7 +475,27 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
         _lastPlaybackSpeed = controller.value.playbackSpeed;
       });
       await previous?.dispose();
+      await _debugLogger.log(
+        scope: 'player',
+        event: 'controller_initialized',
+        fields: <String, Object?>{
+          'mediaId': entry.item.id,
+          'elapsedMs': stopwatch.elapsedMilliseconds,
+          'durationMs': initializedDurationMs,
+          'width': initializedSize.width.round(),
+          'height': initializedSize.height.round(),
+        },
+      );
     } catch (error) {
+      await _debugLogger.log(
+        scope: 'player',
+        event: 'controller_initialize_failed',
+        fields: <String, Object?>{
+          'mediaId': entry.item.id,
+          'elapsedMs': stopwatch.elapsedMilliseconds,
+          'error': error.toString(),
+        },
+      );
       if (mounted) {
         setState(() {
           _errorMessage = error.toString();
@@ -426,12 +529,23 @@ class _PlayerRoutePageState extends ConsumerState<PlayerRoutePage> {
     if (controller == null || !controller.value.isInitialized) {
       return;
     }
+    final stopwatch = Stopwatch()..start();
     final current = controller.value.position;
     final targetMs = (current.inMilliseconds + delta.inMilliseconds).clamp(
       0,
       controller.value.duration.inMilliseconds,
     );
     await controller.seekTo(Duration(milliseconds: targetMs));
+    await _debugLogger.log(
+      scope: 'player',
+      event: 'seek_completed',
+      fields: <String, Object?>{
+        'mediaId': widget.mediaId,
+        'deltaMs': delta.inMilliseconds,
+        'targetMs': targetMs,
+        'elapsedMs': stopwatch.elapsedMilliseconds,
+      },
+    );
   }
 
   Future<void> _setPlaybackSpeed(double speed) async {
@@ -523,15 +637,63 @@ Future<DocumentFile?> _resolvePrimaryVideo(
   WidgetRef ref,
   MediaItem item,
 ) async {
+  final debugLogger = ref.read(appDebugLoggerProvider);
+  final stopwatch = Stopwatch()..start();
+  final directUri = item.primaryVideoUri?.trim();
+  if (directUri != null && directUri.isNotEmpty) {
+    final document = await ref.read(
+      relativeDocumentProvider(
+        RelativeAssetRequest(
+          sourceId: item.sourceId,
+          relativePath: item.primaryVideoRelativePath ?? item.fileName,
+          uri: directUri,
+        ),
+      ).future,
+    );
+    await debugLogger.log(
+      scope: 'player',
+      event: 'resolve_primary_video',
+      fields: <String, Object?>{
+        'mediaId': item.id,
+        'strategy': 'direct_uri',
+        'resolved': document != null,
+        'elapsedMs': stopwatch.elapsedMilliseconds,
+      },
+    );
+    return document;
+  }
+
   final relativePath = item.primaryVideoRelativePath;
   if (relativePath == null || relativePath.isEmpty) {
+    await debugLogger.log(
+      scope: 'player',
+      event: 'resolve_primary_video',
+      fields: <String, Object?>{
+        'mediaId': item.id,
+        'strategy': 'missing_path',
+        'resolved': false,
+        'elapsedMs': stopwatch.elapsedMilliseconds,
+      },
+    );
     return null;
   }
-  return ref.read(
+
+  final document = await ref.read(
     relativeDocumentProvider(
       RelativeAssetRequest(sourceId: item.sourceId, relativePath: relativePath),
     ).future,
   );
+  await debugLogger.log(
+    scope: 'player',
+    event: 'resolve_primary_video',
+    fields: <String, Object?>{
+      'mediaId': item.id,
+      'strategy': 'relative_path',
+      'resolved': document != null,
+      'elapsedMs': stopwatch.elapsedMilliseconds,
+    },
+  );
+  return document;
 }
 
 void _showMessage(BuildContext context, String message) {

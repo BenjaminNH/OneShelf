@@ -22,6 +22,13 @@ abstract interface class LibraryRepository {
     required bool isFinished,
   });
 
+  Future<void> updateTechnicalMetadata({
+    required String mediaId,
+    int? durationMs,
+    int? width,
+    int? height,
+  });
+
   Future<ScanReport> scanAllSources();
 
   Future<ScanReport> scanSource(String sourceId);

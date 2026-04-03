@@ -129,6 +129,29 @@ class LibraryRepositoryImpl implements LibraryRepository {
   }
 
   @override
+  Future<void> updateTechnicalMetadata({
+    required String mediaId,
+    int? durationMs,
+    int? width,
+    int? height,
+  }) async {
+    final existing = await (_database.select(
+      _database.mediaItemsTable,
+    )..where((tbl) => tbl.id.equals(mediaId))).getSingleOrNull();
+
+    await (_database.update(
+      _database.mediaItemsTable,
+    )..where((tbl) => tbl.id.equals(mediaId))).write(
+      MediaItemsTableCompanion(
+        durationMs: Value(durationMs ?? existing?.durationMs),
+        width: Value(width ?? existing?.width),
+        height: Value(height ?? existing?.height),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  @override
   Future<ScanReport> scanAllSources() async {
     final sources = await (_database.select(
       _database.mediaSourcesTable,

@@ -14,6 +14,10 @@ class DetailPage extends StatelessWidget {
     this.onRatingChanged,
     this.heroImage,
     this.posterImage,
+    this.effectiveDurationMs,
+    this.effectiveWidth,
+    this.effectiveHeight,
+    this.isResolvingTechnicalMetadata = false,
   });
 
   final MediaEntry entry;
@@ -23,16 +27,23 @@ class DetailPage extends StatelessWidget {
   final ValueChanged<double?>? onRatingChanged;
   final ImageProvider<Object>? heroImage;
   final ImageProvider<Object>? posterImage;
+  final int? effectiveDurationMs;
+  final int? effectiveWidth;
+  final int? effectiveHeight;
+  final bool isResolvingTechnicalMetadata;
 
   @override
   Widget build(BuildContext context) {
     final item = entry.item;
     final title = item.resolvedTitle;
+    final durationMs = effectiveDurationMs ?? item.durationMs;
+    final width = effectiveWidth ?? item.width;
+    final height = effectiveHeight ?? item.height;
+    final resolutionBadge = _buildResolutionBadge(width: width, height: height);
     final subtitle = [
       if (item.code != null && item.code!.isNotEmpty) item.code!,
-      if (item.durationMs != null) _formatDurationMs(item.durationMs!),
-      if (item.width != null && item.height != null)
-        '${item.width}x${item.height}',
+      if (durationMs != null) _formatDurationMs(durationMs),
+      if (width != null && height != null) '${width}x$height',
     ].join(' · ');
 
     return Scaffold(
@@ -53,6 +64,7 @@ class DetailPage extends StatelessWidget {
                     subtitle: subtitle,
                     actorNames: item.actorNames,
                     posterImage: posterImage,
+                    resolutionBadge: resolutionBadge,
                   ),
                   const SizedBox(height: 16),
                   _ActionRow(
@@ -74,7 +86,12 @@ class DetailPage extends StatelessWidget {
                         : 'No local synopsis found. The entry still stays playable and searchable.',
                   ),
                   const SizedBox(height: 12),
-                  _MetaGrid(item: item),
+                  _MetaGrid(
+                    item: item,
+                    effectiveWidth: width,
+                    effectiveHeight: height,
+                    isResolvingTechnicalMetadata: isResolvingTechnicalMetadata,
+                  ),
                   const SizedBox(height: 12),
                   _InfoCard(
                     title: 'Media path',
@@ -173,12 +190,14 @@ class _PosterAndInfo extends StatelessWidget {
     required this.subtitle,
     required this.actorNames,
     required this.posterImage,
+    required this.resolutionBadge,
   });
 
   final String title;
   final String subtitle;
   final List<String> actorNames;
   final ImageProvider<Object>? posterImage;
+  final String? resolutionBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -204,22 +223,27 @@ class _PosterAndInfo extends StatelessWidget {
           ),
           child: Align(
             alignment: Alignment.topRight,
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppPalette.accentDim,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Text(
-                '4K',
-                style: TextStyle(
-                  color: AppPalette.accent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            child: resolutionBadge == null
+                ? const SizedBox.shrink()
+                : Container(
+                    margin: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppPalette.accentDim,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      resolutionBadge!,
+                      style: const TextStyle(
+                        color: AppPalette.accent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
           ),
         ),
         const SizedBox(width: 14),
@@ -505,9 +529,17 @@ class _RatingSelectorState extends State<_RatingSelector> {
 }
 
 class _MetaGrid extends StatelessWidget {
-  const _MetaGrid({required this.item});
+  const _MetaGrid({
+    required this.item,
+    this.effectiveWidth,
+    this.effectiveHeight,
+    this.isResolvingTechnicalMetadata = false,
+  });
 
   final MediaItem item;
+  final int? effectiveWidth;
+  final int? effectiveHeight;
+  final bool isResolvingTechnicalMetadata;
 
   @override
   Widget build(BuildContext context) {
@@ -521,9 +553,9 @@ class _MetaGrid extends StatelessWidget {
       ),
       (
         'Resolution',
-        item.width == null || item.height == null
-            ? 'Unknown'
-            : '${item.width} x ${item.height}',
+        effectiveWidth == null || effectiveHeight == null
+            ? (isResolvingTechnicalMetadata ? 'Reading…' : 'Unknown')
+            : '$effectiveWidth x $effectiveHeight',
       ),
       ('Source', item.sourceId),
     ];
@@ -648,6 +680,23 @@ class _GlassCard extends StatelessWidget {
       child: Padding(padding: padding ?? const EdgeInsets.all(0), child: child),
     );
   }
+}
+
+String? _buildResolutionBadge({required int? width, required int? height}) {
+  final longerEdge = [width, height].whereType<int>().fold<int>(
+    0,
+    (current, value) => value > current ? value : current,
+  );
+  if (longerEdge >= 3800) {
+    return '4K';
+  }
+  if (longerEdge >= 1900) {
+    return '1080p';
+  }
+  if (longerEdge >= 1200) {
+    return '720p';
+  }
+  return null;
 }
 
 String _formatDurationMs(int durationMs) {

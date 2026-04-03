@@ -9,6 +9,10 @@ final appSettingsProvider = StreamProvider<AppSettings>((ref) {
   return repository.watchSettings();
 });
 
+final debugLogPathProvider = FutureProvider<String?>((ref) {
+  return ref.watch(settingsRepositoryProvider).debugLogPath();
+});
+
 final settingsActionsProvider = Provider<SettingsActions>((ref) {
   return SettingsActions(ref);
 });
@@ -47,4 +51,10 @@ class SettingsActions {
   }
 
   Future<void> clearImageCache() => _repository.clearImageCache();
+
+  Future<String?> debugLogPath() => _repository.debugLogPath();
+
+  Future<bool> shareDebugLog() => _repository.shareDebugLog();
+
+  Future<void> clearDebugLog() => _repository.clearDebugLog();
 }

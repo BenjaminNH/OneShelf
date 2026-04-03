@@ -68,6 +68,20 @@ class LibraryActions {
     );
   }
 
+  Future<void> updateTechnicalMetadata({
+    required String mediaId,
+    int? durationMs,
+    int? width,
+    int? height,
+  }) {
+    return _repository.updateTechnicalMetadata(
+      mediaId: mediaId,
+      durationMs: durationMs,
+      width: width,
+      height: height,
+    );
+  }
+
   Future<ScanReport> scanAllSources() {
     return _repository.scanAllSources();
   }

@@ -16,6 +16,9 @@ class SettingsPage extends StatefulWidget {
     this.onSave,
     this.onClearCache,
     this.onRebuildLibrary,
+    this.onShareDebugLog,
+    this.onClearDebugLog,
+    this.debugLogPathLabel,
   });
 
   final AppSettings settings;
@@ -27,6 +30,9 @@ class SettingsPage extends StatefulWidget {
   final ValueChanged<AppSettings>? onSave;
   final VoidCallback? onClearCache;
   final VoidCallback? onRebuildLibrary;
+  final VoidCallback? onShareDebugLog;
+  final VoidCallback? onClearDebugLog;
+  final String? debugLogPathLabel;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -236,6 +242,33 @@ class _SettingsPageState extends State<SettingsPage> {
                             onPressed: widget.onClearCache,
                             icon: const Icon(Icons.cleaning_services_rounded),
                             label: const Text('Clear cache'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _GlassCard(
+                  child: _SectionColumn(
+                    title: 'Profile logging',
+                    subtitle:
+                        'Performance logs are written to ${widget.debugLogPathLabel ?? 'app storage'}. Run a repro on the phone, then share the log file back.',
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.tonalIcon(
+                            onPressed: widget.onShareDebugLog,
+                            icon: const Icon(Icons.ios_share_rounded),
+                            label: const Text('Share log'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: widget.onClearDebugLog,
+                            icon: const Icon(Icons.delete_sweep_rounded),
+                            label: const Text('Clear log'),
                           ),
                         ),
                       ],
