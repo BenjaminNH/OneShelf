@@ -54,13 +54,27 @@ class MediaItemsTable extends Table {
 
   TextColumn get posterRelativePath => text().nullable()();
 
+  TextColumn get posterUri => text().nullable()();
+
+  IntColumn get posterLastModified => integer().nullable()();
+
   TextColumn get fanartRelativePath => text().nullable()();
+
+  TextColumn get fanartUri => text().nullable()();
+
+  IntColumn get fanartLastModified => integer().nullable()();
 
   TextColumn get folderRelativePath => text().nullable()();
 
   TextColumn get primaryVideoRelativePath => text().nullable()();
 
+  TextColumn get primaryVideoUri => text().nullable()();
+
+  IntColumn get primaryVideoLastModified => integer().nullable()();
+
   TextColumn get nfoRelativePath => text().nullable()();
+
+  TextColumn get nfoUri => text().nullable()();
 
   TextColumn get fileName => text()();
 
@@ -199,7 +213,7 @@ class AppDatabase extends _$AppDatabase {
       driftDatabase(name: 'oneshelf.sqlite');
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -212,6 +226,18 @@ class AppDatabase extends _$AppDatabase {
           appSettingsTable,
           appSettingsTable.showRecentActivity,
         );
+      }
+      if (from < 3) {
+        await m.addColumn(mediaItemsTable, mediaItemsTable.posterUri);
+        await m.addColumn(mediaItemsTable, mediaItemsTable.posterLastModified);
+        await m.addColumn(mediaItemsTable, mediaItemsTable.fanartUri);
+        await m.addColumn(mediaItemsTable, mediaItemsTable.fanartLastModified);
+        await m.addColumn(mediaItemsTable, mediaItemsTable.primaryVideoUri);
+        await m.addColumn(
+          mediaItemsTable,
+          mediaItemsTable.primaryVideoLastModified,
+        );
+        await m.addColumn(mediaItemsTable, mediaItemsTable.nfoUri);
       }
     },
     beforeOpen: (details) async {

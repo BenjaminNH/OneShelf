@@ -15,6 +15,8 @@ abstract interface class DocumentTreeAccess {
 
   Future<List<DocumentFile>> listChildren(DocumentFile directory);
 
+  Future<DocumentFile?> findChild(DocumentFile directory, String name);
+
   Future<String?> readText(DocumentFile file);
 
   Future<Uint8List?> readBytes(DocumentFile file);

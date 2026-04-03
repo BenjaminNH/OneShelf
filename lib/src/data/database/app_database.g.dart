@@ -944,6 +944,27 @@ class $MediaItemsTableTable extends MediaItemsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _posterUriMeta = const VerificationMeta(
+    'posterUri',
+  );
+  @override
+  late final GeneratedColumn<String> posterUri = GeneratedColumn<String>(
+    'poster_uri',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _posterLastModifiedMeta =
+      const VerificationMeta('posterLastModified');
+  @override
+  late final GeneratedColumn<int> posterLastModified = GeneratedColumn<int>(
+    'poster_last_modified',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _fanartRelativePathMeta =
       const VerificationMeta('fanartRelativePath');
   @override
@@ -955,6 +976,27 @@ class $MediaItemsTableTable extends MediaItemsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _fanartUriMeta = const VerificationMeta(
+    'fanartUri',
+  );
+  @override
+  late final GeneratedColumn<String> fanartUri = GeneratedColumn<String>(
+    'fanart_uri',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fanartLastModifiedMeta =
+      const VerificationMeta('fanartLastModified');
+  @override
+  late final GeneratedColumn<int> fanartLastModified = GeneratedColumn<int>(
+    'fanart_last_modified',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _folderRelativePathMeta =
       const VerificationMeta('folderRelativePath');
   @override
@@ -977,12 +1019,43 @@ class $MediaItemsTableTable extends MediaItemsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _primaryVideoUriMeta = const VerificationMeta(
+    'primaryVideoUri',
+  );
+  @override
+  late final GeneratedColumn<String> primaryVideoUri = GeneratedColumn<String>(
+    'primary_video_uri',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _primaryVideoLastModifiedMeta =
+      const VerificationMeta('primaryVideoLastModified');
+  @override
+  late final GeneratedColumn<int> primaryVideoLastModified =
+      GeneratedColumn<int>(
+        'primary_video_last_modified',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _nfoRelativePathMeta = const VerificationMeta(
     'nfoRelativePath',
   );
   @override
   late final GeneratedColumn<String> nfoRelativePath = GeneratedColumn<String>(
     'nfo_relative_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nfoUriMeta = const VerificationMeta('nfoUri');
+  @override
+  late final GeneratedColumn<String> nfoUri = GeneratedColumn<String>(
+    'nfo_uri',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -1123,10 +1196,17 @@ class $MediaItemsTableTable extends MediaItemsTable
     code,
     plot,
     posterRelativePath,
+    posterUri,
+    posterLastModified,
     fanartRelativePath,
+    fanartUri,
+    fanartLastModified,
     folderRelativePath,
     primaryVideoRelativePath,
+    primaryVideoUri,
+    primaryVideoLastModified,
     nfoRelativePath,
+    nfoUri,
     fileName,
     fileSizeBytes,
     durationMs,
@@ -1211,12 +1291,42 @@ class $MediaItemsTableTable extends MediaItemsTable
         ),
       );
     }
+    if (data.containsKey('poster_uri')) {
+      context.handle(
+        _posterUriMeta,
+        posterUri.isAcceptableOrUnknown(data['poster_uri']!, _posterUriMeta),
+      );
+    }
+    if (data.containsKey('poster_last_modified')) {
+      context.handle(
+        _posterLastModifiedMeta,
+        posterLastModified.isAcceptableOrUnknown(
+          data['poster_last_modified']!,
+          _posterLastModifiedMeta,
+        ),
+      );
+    }
     if (data.containsKey('fanart_relative_path')) {
       context.handle(
         _fanartRelativePathMeta,
         fanartRelativePath.isAcceptableOrUnknown(
           data['fanart_relative_path']!,
           _fanartRelativePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fanart_uri')) {
+      context.handle(
+        _fanartUriMeta,
+        fanartUri.isAcceptableOrUnknown(data['fanart_uri']!, _fanartUriMeta),
+      );
+    }
+    if (data.containsKey('fanart_last_modified')) {
+      context.handle(
+        _fanartLastModifiedMeta,
+        fanartLastModified.isAcceptableOrUnknown(
+          data['fanart_last_modified']!,
+          _fanartLastModifiedMeta,
         ),
       );
     }
@@ -1238,6 +1348,24 @@ class $MediaItemsTableTable extends MediaItemsTable
         ),
       );
     }
+    if (data.containsKey('primary_video_uri')) {
+      context.handle(
+        _primaryVideoUriMeta,
+        primaryVideoUri.isAcceptableOrUnknown(
+          data['primary_video_uri']!,
+          _primaryVideoUriMeta,
+        ),
+      );
+    }
+    if (data.containsKey('primary_video_last_modified')) {
+      context.handle(
+        _primaryVideoLastModifiedMeta,
+        primaryVideoLastModified.isAcceptableOrUnknown(
+          data['primary_video_last_modified']!,
+          _primaryVideoLastModifiedMeta,
+        ),
+      );
+    }
     if (data.containsKey('nfo_relative_path')) {
       context.handle(
         _nfoRelativePathMeta,
@@ -1245,6 +1373,12 @@ class $MediaItemsTableTable extends MediaItemsTable
           data['nfo_relative_path']!,
           _nfoRelativePathMeta,
         ),
+      );
+    }
+    if (data.containsKey('nfo_uri')) {
+      context.handle(
+        _nfoUriMeta,
+        nfoUri.isAcceptableOrUnknown(data['nfo_uri']!, _nfoUriMeta),
       );
     }
     if (data.containsKey('file_name')) {
@@ -1373,9 +1507,25 @@ class $MediaItemsTableTable extends MediaItemsTable
         DriftSqlType.string,
         data['${effectivePrefix}poster_relative_path'],
       ),
+      posterUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}poster_uri'],
+      ),
+      posterLastModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}poster_last_modified'],
+      ),
       fanartRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}fanart_relative_path'],
+      ),
+      fanartUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fanart_uri'],
+      ),
+      fanartLastModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fanart_last_modified'],
       ),
       folderRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1385,9 +1535,21 @@ class $MediaItemsTableTable extends MediaItemsTable
         DriftSqlType.string,
         data['${effectivePrefix}primary_video_relative_path'],
       ),
+      primaryVideoUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}primary_video_uri'],
+      ),
+      primaryVideoLastModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}primary_video_last_modified'],
+      ),
       nfoRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}nfo_relative_path'],
+      ),
+      nfoUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nfo_uri'],
       ),
       fileName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1452,10 +1614,17 @@ class MediaItemsTableData extends DataClass
   final String? code;
   final String? plot;
   final String? posterRelativePath;
+  final String? posterUri;
+  final int? posterLastModified;
   final String? fanartRelativePath;
+  final String? fanartUri;
+  final int? fanartLastModified;
   final String? folderRelativePath;
   final String? primaryVideoRelativePath;
+  final String? primaryVideoUri;
+  final int? primaryVideoLastModified;
   final String? nfoRelativePath;
+  final String? nfoUri;
   final String fileName;
   final int? fileSizeBytes;
   final int? durationMs;
@@ -1476,10 +1645,17 @@ class MediaItemsTableData extends DataClass
     this.code,
     this.plot,
     this.posterRelativePath,
+    this.posterUri,
+    this.posterLastModified,
     this.fanartRelativePath,
+    this.fanartUri,
+    this.fanartLastModified,
     this.folderRelativePath,
     this.primaryVideoRelativePath,
+    this.primaryVideoUri,
+    this.primaryVideoLastModified,
     this.nfoRelativePath,
+    this.nfoUri,
     required this.fileName,
     this.fileSizeBytes,
     this.durationMs,
@@ -1511,8 +1687,20 @@ class MediaItemsTableData extends DataClass
     if (!nullToAbsent || posterRelativePath != null) {
       map['poster_relative_path'] = Variable<String>(posterRelativePath);
     }
+    if (!nullToAbsent || posterUri != null) {
+      map['poster_uri'] = Variable<String>(posterUri);
+    }
+    if (!nullToAbsent || posterLastModified != null) {
+      map['poster_last_modified'] = Variable<int>(posterLastModified);
+    }
     if (!nullToAbsent || fanartRelativePath != null) {
       map['fanart_relative_path'] = Variable<String>(fanartRelativePath);
+    }
+    if (!nullToAbsent || fanartUri != null) {
+      map['fanart_uri'] = Variable<String>(fanartUri);
+    }
+    if (!nullToAbsent || fanartLastModified != null) {
+      map['fanart_last_modified'] = Variable<int>(fanartLastModified);
     }
     if (!nullToAbsent || folderRelativePath != null) {
       map['folder_relative_path'] = Variable<String>(folderRelativePath);
@@ -1522,8 +1710,19 @@ class MediaItemsTableData extends DataClass
         primaryVideoRelativePath,
       );
     }
+    if (!nullToAbsent || primaryVideoUri != null) {
+      map['primary_video_uri'] = Variable<String>(primaryVideoUri);
+    }
+    if (!nullToAbsent || primaryVideoLastModified != null) {
+      map['primary_video_last_modified'] = Variable<int>(
+        primaryVideoLastModified,
+      );
+    }
     if (!nullToAbsent || nfoRelativePath != null) {
       map['nfo_relative_path'] = Variable<String>(nfoRelativePath);
+    }
+    if (!nullToAbsent || nfoUri != null) {
+      map['nfo_uri'] = Variable<String>(nfoUri);
     }
     map['file_name'] = Variable<String>(fileName);
     if (!nullToAbsent || fileSizeBytes != null) {
@@ -1561,18 +1760,39 @@ class MediaItemsTableData extends DataClass
       posterRelativePath: posterRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(posterRelativePath),
+      posterUri: posterUri == null && nullToAbsent
+          ? const Value.absent()
+          : Value(posterUri),
+      posterLastModified: posterLastModified == null && nullToAbsent
+          ? const Value.absent()
+          : Value(posterLastModified),
       fanartRelativePath: fanartRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(fanartRelativePath),
+      fanartUri: fanartUri == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fanartUri),
+      fanartLastModified: fanartLastModified == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fanartLastModified),
       folderRelativePath: folderRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(folderRelativePath),
       primaryVideoRelativePath: primaryVideoRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(primaryVideoRelativePath),
+      primaryVideoUri: primaryVideoUri == null && nullToAbsent
+          ? const Value.absent()
+          : Value(primaryVideoUri),
+      primaryVideoLastModified: primaryVideoLastModified == null && nullToAbsent
+          ? const Value.absent()
+          : Value(primaryVideoLastModified),
       nfoRelativePath: nfoRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(nfoRelativePath),
+      nfoUri: nfoUri == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nfoUri),
       fileName: Value(fileName),
       fileSizeBytes: fileSizeBytes == null && nullToAbsent
           ? const Value.absent()
@@ -1611,16 +1831,25 @@ class MediaItemsTableData extends DataClass
       posterRelativePath: serializer.fromJson<String?>(
         json['posterRelativePath'],
       ),
+      posterUri: serializer.fromJson<String?>(json['posterUri']),
+      posterLastModified: serializer.fromJson<int?>(json['posterLastModified']),
       fanartRelativePath: serializer.fromJson<String?>(
         json['fanartRelativePath'],
       ),
+      fanartUri: serializer.fromJson<String?>(json['fanartUri']),
+      fanartLastModified: serializer.fromJson<int?>(json['fanartLastModified']),
       folderRelativePath: serializer.fromJson<String?>(
         json['folderRelativePath'],
       ),
       primaryVideoRelativePath: serializer.fromJson<String?>(
         json['primaryVideoRelativePath'],
       ),
+      primaryVideoUri: serializer.fromJson<String?>(json['primaryVideoUri']),
+      primaryVideoLastModified: serializer.fromJson<int?>(
+        json['primaryVideoLastModified'],
+      ),
       nfoRelativePath: serializer.fromJson<String?>(json['nfoRelativePath']),
+      nfoUri: serializer.fromJson<String?>(json['nfoUri']),
       fileName: serializer.fromJson<String>(json['fileName']),
       fileSizeBytes: serializer.fromJson<int?>(json['fileSizeBytes']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
@@ -1646,12 +1875,21 @@ class MediaItemsTableData extends DataClass
       'code': serializer.toJson<String?>(code),
       'plot': serializer.toJson<String?>(plot),
       'posterRelativePath': serializer.toJson<String?>(posterRelativePath),
+      'posterUri': serializer.toJson<String?>(posterUri),
+      'posterLastModified': serializer.toJson<int?>(posterLastModified),
       'fanartRelativePath': serializer.toJson<String?>(fanartRelativePath),
+      'fanartUri': serializer.toJson<String?>(fanartUri),
+      'fanartLastModified': serializer.toJson<int?>(fanartLastModified),
       'folderRelativePath': serializer.toJson<String?>(folderRelativePath),
       'primaryVideoRelativePath': serializer.toJson<String?>(
         primaryVideoRelativePath,
       ),
+      'primaryVideoUri': serializer.toJson<String?>(primaryVideoUri),
+      'primaryVideoLastModified': serializer.toJson<int?>(
+        primaryVideoLastModified,
+      ),
       'nfoRelativePath': serializer.toJson<String?>(nfoRelativePath),
+      'nfoUri': serializer.toJson<String?>(nfoUri),
       'fileName': serializer.toJson<String>(fileName),
       'fileSizeBytes': serializer.toJson<int?>(fileSizeBytes),
       'durationMs': serializer.toJson<int?>(durationMs),
@@ -1675,10 +1913,17 @@ class MediaItemsTableData extends DataClass
     Value<String?> code = const Value.absent(),
     Value<String?> plot = const Value.absent(),
     Value<String?> posterRelativePath = const Value.absent(),
+    Value<String?> posterUri = const Value.absent(),
+    Value<int?> posterLastModified = const Value.absent(),
     Value<String?> fanartRelativePath = const Value.absent(),
+    Value<String?> fanartUri = const Value.absent(),
+    Value<int?> fanartLastModified = const Value.absent(),
     Value<String?> folderRelativePath = const Value.absent(),
     Value<String?> primaryVideoRelativePath = const Value.absent(),
+    Value<String?> primaryVideoUri = const Value.absent(),
+    Value<int?> primaryVideoLastModified = const Value.absent(),
     Value<String?> nfoRelativePath = const Value.absent(),
+    Value<String?> nfoUri = const Value.absent(),
     String? fileName,
     Value<int?> fileSizeBytes = const Value.absent(),
     Value<int?> durationMs = const Value.absent(),
@@ -1701,18 +1946,33 @@ class MediaItemsTableData extends DataClass
     posterRelativePath: posterRelativePath.present
         ? posterRelativePath.value
         : this.posterRelativePath,
+    posterUri: posterUri.present ? posterUri.value : this.posterUri,
+    posterLastModified: posterLastModified.present
+        ? posterLastModified.value
+        : this.posterLastModified,
     fanartRelativePath: fanartRelativePath.present
         ? fanartRelativePath.value
         : this.fanartRelativePath,
+    fanartUri: fanartUri.present ? fanartUri.value : this.fanartUri,
+    fanartLastModified: fanartLastModified.present
+        ? fanartLastModified.value
+        : this.fanartLastModified,
     folderRelativePath: folderRelativePath.present
         ? folderRelativePath.value
         : this.folderRelativePath,
     primaryVideoRelativePath: primaryVideoRelativePath.present
         ? primaryVideoRelativePath.value
         : this.primaryVideoRelativePath,
+    primaryVideoUri: primaryVideoUri.present
+        ? primaryVideoUri.value
+        : this.primaryVideoUri,
+    primaryVideoLastModified: primaryVideoLastModified.present
+        ? primaryVideoLastModified.value
+        : this.primaryVideoLastModified,
     nfoRelativePath: nfoRelativePath.present
         ? nfoRelativePath.value
         : this.nfoRelativePath,
+    nfoUri: nfoUri.present ? nfoUri.value : this.nfoUri,
     fileName: fileName ?? this.fileName,
     fileSizeBytes: fileSizeBytes.present
         ? fileSizeBytes.value
@@ -1743,18 +2003,33 @@ class MediaItemsTableData extends DataClass
       posterRelativePath: data.posterRelativePath.present
           ? data.posterRelativePath.value
           : this.posterRelativePath,
+      posterUri: data.posterUri.present ? data.posterUri.value : this.posterUri,
+      posterLastModified: data.posterLastModified.present
+          ? data.posterLastModified.value
+          : this.posterLastModified,
       fanartRelativePath: data.fanartRelativePath.present
           ? data.fanartRelativePath.value
           : this.fanartRelativePath,
+      fanartUri: data.fanartUri.present ? data.fanartUri.value : this.fanartUri,
+      fanartLastModified: data.fanartLastModified.present
+          ? data.fanartLastModified.value
+          : this.fanartLastModified,
       folderRelativePath: data.folderRelativePath.present
           ? data.folderRelativePath.value
           : this.folderRelativePath,
       primaryVideoRelativePath: data.primaryVideoRelativePath.present
           ? data.primaryVideoRelativePath.value
           : this.primaryVideoRelativePath,
+      primaryVideoUri: data.primaryVideoUri.present
+          ? data.primaryVideoUri.value
+          : this.primaryVideoUri,
+      primaryVideoLastModified: data.primaryVideoLastModified.present
+          ? data.primaryVideoLastModified.value
+          : this.primaryVideoLastModified,
       nfoRelativePath: data.nfoRelativePath.present
           ? data.nfoRelativePath.value
           : this.nfoRelativePath,
+      nfoUri: data.nfoUri.present ? data.nfoUri.value : this.nfoUri,
       fileName: data.fileName.present ? data.fileName.value : this.fileName,
       fileSizeBytes: data.fileSizeBytes.present
           ? data.fileSizeBytes.value
@@ -1790,10 +2065,17 @@ class MediaItemsTableData extends DataClass
           ..write('code: $code, ')
           ..write('plot: $plot, ')
           ..write('posterRelativePath: $posterRelativePath, ')
+          ..write('posterUri: $posterUri, ')
+          ..write('posterLastModified: $posterLastModified, ')
           ..write('fanartRelativePath: $fanartRelativePath, ')
+          ..write('fanartUri: $fanartUri, ')
+          ..write('fanartLastModified: $fanartLastModified, ')
           ..write('folderRelativePath: $folderRelativePath, ')
           ..write('primaryVideoRelativePath: $primaryVideoRelativePath, ')
+          ..write('primaryVideoUri: $primaryVideoUri, ')
+          ..write('primaryVideoLastModified: $primaryVideoLastModified, ')
           ..write('nfoRelativePath: $nfoRelativePath, ')
+          ..write('nfoUri: $nfoUri, ')
           ..write('fileName: $fileName, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
           ..write('durationMs: $durationMs, ')
@@ -1819,10 +2101,17 @@ class MediaItemsTableData extends DataClass
     code,
     plot,
     posterRelativePath,
+    posterUri,
+    posterLastModified,
     fanartRelativePath,
+    fanartUri,
+    fanartLastModified,
     folderRelativePath,
     primaryVideoRelativePath,
+    primaryVideoUri,
+    primaryVideoLastModified,
     nfoRelativePath,
+    nfoUri,
     fileName,
     fileSizeBytes,
     durationMs,
@@ -1847,10 +2136,17 @@ class MediaItemsTableData extends DataClass
           other.code == this.code &&
           other.plot == this.plot &&
           other.posterRelativePath == this.posterRelativePath &&
+          other.posterUri == this.posterUri &&
+          other.posterLastModified == this.posterLastModified &&
           other.fanartRelativePath == this.fanartRelativePath &&
+          other.fanartUri == this.fanartUri &&
+          other.fanartLastModified == this.fanartLastModified &&
           other.folderRelativePath == this.folderRelativePath &&
           other.primaryVideoRelativePath == this.primaryVideoRelativePath &&
+          other.primaryVideoUri == this.primaryVideoUri &&
+          other.primaryVideoLastModified == this.primaryVideoLastModified &&
           other.nfoRelativePath == this.nfoRelativePath &&
+          other.nfoUri == this.nfoUri &&
           other.fileName == this.fileName &&
           other.fileSizeBytes == this.fileSizeBytes &&
           other.durationMs == this.durationMs &&
@@ -1873,10 +2169,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
   final Value<String?> code;
   final Value<String?> plot;
   final Value<String?> posterRelativePath;
+  final Value<String?> posterUri;
+  final Value<int?> posterLastModified;
   final Value<String?> fanartRelativePath;
+  final Value<String?> fanartUri;
+  final Value<int?> fanartLastModified;
   final Value<String?> folderRelativePath;
   final Value<String?> primaryVideoRelativePath;
+  final Value<String?> primaryVideoUri;
+  final Value<int?> primaryVideoLastModified;
   final Value<String?> nfoRelativePath;
+  final Value<String?> nfoUri;
   final Value<String> fileName;
   final Value<int?> fileSizeBytes;
   final Value<int?> durationMs;
@@ -1898,10 +2201,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.code = const Value.absent(),
     this.plot = const Value.absent(),
     this.posterRelativePath = const Value.absent(),
+    this.posterUri = const Value.absent(),
+    this.posterLastModified = const Value.absent(),
     this.fanartRelativePath = const Value.absent(),
+    this.fanartUri = const Value.absent(),
+    this.fanartLastModified = const Value.absent(),
     this.folderRelativePath = const Value.absent(),
     this.primaryVideoRelativePath = const Value.absent(),
+    this.primaryVideoUri = const Value.absent(),
+    this.primaryVideoLastModified = const Value.absent(),
     this.nfoRelativePath = const Value.absent(),
+    this.nfoUri = const Value.absent(),
     this.fileName = const Value.absent(),
     this.fileSizeBytes = const Value.absent(),
     this.durationMs = const Value.absent(),
@@ -1924,10 +2234,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.code = const Value.absent(),
     this.plot = const Value.absent(),
     this.posterRelativePath = const Value.absent(),
+    this.posterUri = const Value.absent(),
+    this.posterLastModified = const Value.absent(),
     this.fanartRelativePath = const Value.absent(),
+    this.fanartUri = const Value.absent(),
+    this.fanartLastModified = const Value.absent(),
     this.folderRelativePath = const Value.absent(),
     this.primaryVideoRelativePath = const Value.absent(),
+    this.primaryVideoUri = const Value.absent(),
+    this.primaryVideoLastModified = const Value.absent(),
     this.nfoRelativePath = const Value.absent(),
+    this.nfoUri = const Value.absent(),
     required String fileName,
     this.fileSizeBytes = const Value.absent(),
     this.durationMs = const Value.absent(),
@@ -1957,10 +2274,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Expression<String>? code,
     Expression<String>? plot,
     Expression<String>? posterRelativePath,
+    Expression<String>? posterUri,
+    Expression<int>? posterLastModified,
     Expression<String>? fanartRelativePath,
+    Expression<String>? fanartUri,
+    Expression<int>? fanartLastModified,
     Expression<String>? folderRelativePath,
     Expression<String>? primaryVideoRelativePath,
+    Expression<String>? primaryVideoUri,
+    Expression<int>? primaryVideoLastModified,
     Expression<String>? nfoRelativePath,
+    Expression<String>? nfoUri,
     Expression<String>? fileName,
     Expression<int>? fileSizeBytes,
     Expression<int>? durationMs,
@@ -1984,13 +2308,23 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       if (plot != null) 'plot': plot,
       if (posterRelativePath != null)
         'poster_relative_path': posterRelativePath,
+      if (posterUri != null) 'poster_uri': posterUri,
+      if (posterLastModified != null)
+        'poster_last_modified': posterLastModified,
       if (fanartRelativePath != null)
         'fanart_relative_path': fanartRelativePath,
+      if (fanartUri != null) 'fanart_uri': fanartUri,
+      if (fanartLastModified != null)
+        'fanart_last_modified': fanartLastModified,
       if (folderRelativePath != null)
         'folder_relative_path': folderRelativePath,
       if (primaryVideoRelativePath != null)
         'primary_video_relative_path': primaryVideoRelativePath,
+      if (primaryVideoUri != null) 'primary_video_uri': primaryVideoUri,
+      if (primaryVideoLastModified != null)
+        'primary_video_last_modified': primaryVideoLastModified,
       if (nfoRelativePath != null) 'nfo_relative_path': nfoRelativePath,
+      if (nfoUri != null) 'nfo_uri': nfoUri,
       if (fileName != null) 'file_name': fileName,
       if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
       if (durationMs != null) 'duration_ms': durationMs,
@@ -2015,10 +2349,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Value<String?>? code,
     Value<String?>? plot,
     Value<String?>? posterRelativePath,
+    Value<String?>? posterUri,
+    Value<int?>? posterLastModified,
     Value<String?>? fanartRelativePath,
+    Value<String?>? fanartUri,
+    Value<int?>? fanartLastModified,
     Value<String?>? folderRelativePath,
     Value<String?>? primaryVideoRelativePath,
+    Value<String?>? primaryVideoUri,
+    Value<int?>? primaryVideoLastModified,
     Value<String?>? nfoRelativePath,
+    Value<String?>? nfoUri,
     Value<String>? fileName,
     Value<int?>? fileSizeBytes,
     Value<int?>? durationMs,
@@ -2041,11 +2382,19 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       code: code ?? this.code,
       plot: plot ?? this.plot,
       posterRelativePath: posterRelativePath ?? this.posterRelativePath,
+      posterUri: posterUri ?? this.posterUri,
+      posterLastModified: posterLastModified ?? this.posterLastModified,
       fanartRelativePath: fanartRelativePath ?? this.fanartRelativePath,
+      fanartUri: fanartUri ?? this.fanartUri,
+      fanartLastModified: fanartLastModified ?? this.fanartLastModified,
       folderRelativePath: folderRelativePath ?? this.folderRelativePath,
       primaryVideoRelativePath:
           primaryVideoRelativePath ?? this.primaryVideoRelativePath,
+      primaryVideoUri: primaryVideoUri ?? this.primaryVideoUri,
+      primaryVideoLastModified:
+          primaryVideoLastModified ?? this.primaryVideoLastModified,
       nfoRelativePath: nfoRelativePath ?? this.nfoRelativePath,
+      nfoUri: nfoUri ?? this.nfoUri,
       fileName: fileName ?? this.fileName,
       fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
       durationMs: durationMs ?? this.durationMs,
@@ -2088,8 +2437,20 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     if (posterRelativePath.present) {
       map['poster_relative_path'] = Variable<String>(posterRelativePath.value);
     }
+    if (posterUri.present) {
+      map['poster_uri'] = Variable<String>(posterUri.value);
+    }
+    if (posterLastModified.present) {
+      map['poster_last_modified'] = Variable<int>(posterLastModified.value);
+    }
     if (fanartRelativePath.present) {
       map['fanart_relative_path'] = Variable<String>(fanartRelativePath.value);
+    }
+    if (fanartUri.present) {
+      map['fanart_uri'] = Variable<String>(fanartUri.value);
+    }
+    if (fanartLastModified.present) {
+      map['fanart_last_modified'] = Variable<int>(fanartLastModified.value);
     }
     if (folderRelativePath.present) {
       map['folder_relative_path'] = Variable<String>(folderRelativePath.value);
@@ -2099,8 +2460,19 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
         primaryVideoRelativePath.value,
       );
     }
+    if (primaryVideoUri.present) {
+      map['primary_video_uri'] = Variable<String>(primaryVideoUri.value);
+    }
+    if (primaryVideoLastModified.present) {
+      map['primary_video_last_modified'] = Variable<int>(
+        primaryVideoLastModified.value,
+      );
+    }
     if (nfoRelativePath.present) {
       map['nfo_relative_path'] = Variable<String>(nfoRelativePath.value);
+    }
+    if (nfoUri.present) {
+      map['nfo_uri'] = Variable<String>(nfoUri.value);
     }
     if (fileName.present) {
       map['file_name'] = Variable<String>(fileName.value);
@@ -2152,10 +2524,17 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
           ..write('code: $code, ')
           ..write('plot: $plot, ')
           ..write('posterRelativePath: $posterRelativePath, ')
+          ..write('posterUri: $posterUri, ')
+          ..write('posterLastModified: $posterLastModified, ')
           ..write('fanartRelativePath: $fanartRelativePath, ')
+          ..write('fanartUri: $fanartUri, ')
+          ..write('fanartLastModified: $fanartLastModified, ')
           ..write('folderRelativePath: $folderRelativePath, ')
           ..write('primaryVideoRelativePath: $primaryVideoRelativePath, ')
+          ..write('primaryVideoUri: $primaryVideoUri, ')
+          ..write('primaryVideoLastModified: $primaryVideoLastModified, ')
           ..write('nfoRelativePath: $nfoRelativePath, ')
+          ..write('nfoUri: $nfoUri, ')
           ..write('fileName: $fileName, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
           ..write('durationMs: $durationMs, ')
@@ -4613,10 +4992,17 @@ typedef $$MediaItemsTableTableCreateCompanionBuilder =
       Value<String?> code,
       Value<String?> plot,
       Value<String?> posterRelativePath,
+      Value<String?> posterUri,
+      Value<int?> posterLastModified,
       Value<String?> fanartRelativePath,
+      Value<String?> fanartUri,
+      Value<int?> fanartLastModified,
       Value<String?> folderRelativePath,
       Value<String?> primaryVideoRelativePath,
+      Value<String?> primaryVideoUri,
+      Value<int?> primaryVideoLastModified,
       Value<String?> nfoRelativePath,
+      Value<String?> nfoUri,
       required String fileName,
       Value<int?> fileSizeBytes,
       Value<int?> durationMs,
@@ -4640,10 +5026,17 @@ typedef $$MediaItemsTableTableUpdateCompanionBuilder =
       Value<String?> code,
       Value<String?> plot,
       Value<String?> posterRelativePath,
+      Value<String?> posterUri,
+      Value<int?> posterLastModified,
       Value<String?> fanartRelativePath,
+      Value<String?> fanartUri,
+      Value<int?> fanartLastModified,
       Value<String?> folderRelativePath,
       Value<String?> primaryVideoRelativePath,
+      Value<String?> primaryVideoUri,
+      Value<int?> primaryVideoLastModified,
       Value<String?> nfoRelativePath,
+      Value<String?> nfoUri,
       Value<String> fileName,
       Value<int?> fileSizeBytes,
       Value<int?> durationMs,
@@ -4738,8 +5131,28 @@ class $$MediaItemsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get posterUri => $composableBuilder(
+    column: $table.posterUri,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get posterLastModified => $composableBuilder(
+    column: $table.posterLastModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get fanartRelativePath => $composableBuilder(
     column: $table.fanartRelativePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fanartUri => $composableBuilder(
+    column: $table.fanartUri,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fanartLastModified => $composableBuilder(
+    column: $table.fanartLastModified,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4753,8 +5166,23 @@ class $$MediaItemsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get primaryVideoUri => $composableBuilder(
+    column: $table.primaryVideoUri,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get primaryVideoLastModified => $composableBuilder(
+    column: $table.primaryVideoLastModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get nfoRelativePath => $composableBuilder(
     column: $table.nfoRelativePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nfoUri => $composableBuilder(
+    column: $table.nfoUri,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4881,8 +5309,28 @@ class $$MediaItemsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get posterUri => $composableBuilder(
+    column: $table.posterUri,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get posterLastModified => $composableBuilder(
+    column: $table.posterLastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get fanartRelativePath => $composableBuilder(
     column: $table.fanartRelativePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fanartUri => $composableBuilder(
+    column: $table.fanartUri,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fanartLastModified => $composableBuilder(
+    column: $table.fanartLastModified,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4896,8 +5344,23 @@ class $$MediaItemsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get primaryVideoUri => $composableBuilder(
+    column: $table.primaryVideoUri,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get primaryVideoLastModified => $composableBuilder(
+    column: $table.primaryVideoLastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get nfoRelativePath => $composableBuilder(
     column: $table.nfoRelativePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nfoUri => $composableBuilder(
+    column: $table.nfoUri,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5016,8 +5479,24 @@ class $$MediaItemsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get posterUri =>
+      $composableBuilder(column: $table.posterUri, builder: (column) => column);
+
+  GeneratedColumn<int> get posterLastModified => $composableBuilder(
+    column: $table.posterLastModified,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get fanartRelativePath => $composableBuilder(
     column: $table.fanartRelativePath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fanartUri =>
+      $composableBuilder(column: $table.fanartUri, builder: (column) => column);
+
+  GeneratedColumn<int> get fanartLastModified => $composableBuilder(
+    column: $table.fanartLastModified,
     builder: (column) => column,
   );
 
@@ -5031,10 +5510,23 @@ class $$MediaItemsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get primaryVideoUri => $composableBuilder(
+    column: $table.primaryVideoUri,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get primaryVideoLastModified => $composableBuilder(
+    column: $table.primaryVideoLastModified,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get nfoRelativePath => $composableBuilder(
     column: $table.nfoRelativePath,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get nfoUri =>
+      $composableBuilder(column: $table.nfoUri, builder: (column) => column);
 
   GeneratedColumn<String> get fileName =>
       $composableBuilder(column: $table.fileName, builder: (column) => column);
@@ -5142,10 +5634,17 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> code = const Value.absent(),
                 Value<String?> plot = const Value.absent(),
                 Value<String?> posterRelativePath = const Value.absent(),
+                Value<String?> posterUri = const Value.absent(),
+                Value<int?> posterLastModified = const Value.absent(),
                 Value<String?> fanartRelativePath = const Value.absent(),
+                Value<String?> fanartUri = const Value.absent(),
+                Value<int?> fanartLastModified = const Value.absent(),
                 Value<String?> folderRelativePath = const Value.absent(),
                 Value<String?> primaryVideoRelativePath = const Value.absent(),
+                Value<String?> primaryVideoUri = const Value.absent(),
+                Value<int?> primaryVideoLastModified = const Value.absent(),
                 Value<String?> nfoRelativePath = const Value.absent(),
+                Value<String?> nfoUri = const Value.absent(),
                 Value<String> fileName = const Value.absent(),
                 Value<int?> fileSizeBytes = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
@@ -5167,10 +5666,17 @@ class $$MediaItemsTableTableTableManager
                 code: code,
                 plot: plot,
                 posterRelativePath: posterRelativePath,
+                posterUri: posterUri,
+                posterLastModified: posterLastModified,
                 fanartRelativePath: fanartRelativePath,
+                fanartUri: fanartUri,
+                fanartLastModified: fanartLastModified,
                 folderRelativePath: folderRelativePath,
                 primaryVideoRelativePath: primaryVideoRelativePath,
+                primaryVideoUri: primaryVideoUri,
+                primaryVideoLastModified: primaryVideoLastModified,
                 nfoRelativePath: nfoRelativePath,
+                nfoUri: nfoUri,
                 fileName: fileName,
                 fileSizeBytes: fileSizeBytes,
                 durationMs: durationMs,
@@ -5194,10 +5700,17 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> code = const Value.absent(),
                 Value<String?> plot = const Value.absent(),
                 Value<String?> posterRelativePath = const Value.absent(),
+                Value<String?> posterUri = const Value.absent(),
+                Value<int?> posterLastModified = const Value.absent(),
                 Value<String?> fanartRelativePath = const Value.absent(),
+                Value<String?> fanartUri = const Value.absent(),
+                Value<int?> fanartLastModified = const Value.absent(),
                 Value<String?> folderRelativePath = const Value.absent(),
                 Value<String?> primaryVideoRelativePath = const Value.absent(),
+                Value<String?> primaryVideoUri = const Value.absent(),
+                Value<int?> primaryVideoLastModified = const Value.absent(),
                 Value<String?> nfoRelativePath = const Value.absent(),
+                Value<String?> nfoUri = const Value.absent(),
                 required String fileName,
                 Value<int?> fileSizeBytes = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
@@ -5219,10 +5732,17 @@ class $$MediaItemsTableTableTableManager
                 code: code,
                 plot: plot,
                 posterRelativePath: posterRelativePath,
+                posterUri: posterUri,
+                posterLastModified: posterLastModified,
                 fanartRelativePath: fanartRelativePath,
+                fanartUri: fanartUri,
+                fanartLastModified: fanartLastModified,
                 folderRelativePath: folderRelativePath,
                 primaryVideoRelativePath: primaryVideoRelativePath,
+                primaryVideoUri: primaryVideoUri,
+                primaryVideoLastModified: primaryVideoLastModified,
                 nfoRelativePath: nfoRelativePath,
+                nfoUri: nfoUri,
                 fileName: fileName,
                 fileSizeBytes: fileSizeBytes,
                 durationMs: durationMs,

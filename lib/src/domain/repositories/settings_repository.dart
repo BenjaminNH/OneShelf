@@ -8,4 +8,10 @@ abstract interface class SettingsRepository {
   Future<void> save(AppSettings settings);
 
   Future<void> clearImageCache();
+
+  Future<String?> debugLogPath();
+
+  Future<bool> shareDebugLog();
+
+  Future<void> clearDebugLog();
 }

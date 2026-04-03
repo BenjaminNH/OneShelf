@@ -5,11 +5,13 @@ import '../../domain/entities/app_settings.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../database/app_database.dart';
 import '../database/database_mappers.dart';
+import '../../shared/debug/app_debug_logger.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
-  SettingsRepositoryImpl(this._database);
+  SettingsRepositoryImpl(this._database, this._debugLogger);
 
   final AppDatabase _database;
+  final AppDebugLogger _debugLogger;
 
   @override
   Stream<AppSettings> watchSettings() {
@@ -51,5 +53,41 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<void> clearImageCache() async {
     await DocMan.dir.clearCache();
+  }
+
+  @override
+  Future<String?> debugLogPath() async {
+    final file = await _debugLogger.getLogFile();
+    return file?.path;
+  }
+
+  @override
+  Future<bool> shareDebugLog() async {
+    final file = await _debugLogger.getLogFile();
+    if (file == null || !file.existsSync()) {
+      await _debugLogger.log(scope: 'session', event: 'share_log_unavailable');
+      return false;
+    }
+    final document = await DocumentFile.fromUri(file.path);
+    if (document == null || !document.exists || !document.isFile) {
+      await _debugLogger.log(
+        scope: 'session',
+        event: 'share_log_unavailable',
+        fields: <String, Object?>{'path': file.path},
+      );
+      return false;
+    }
+    final shared = await document.share(title: 'Share OneShelf profile log');
+    await _debugLogger.log(
+      scope: 'session',
+      event: 'share_log',
+      fields: <String, Object?>{'path': file.path, 'shared': shared},
+    );
+    return shared;
+  }
+
+  @override
+  Future<void> clearDebugLog() {
+    return _debugLogger.clear();
   }
 }

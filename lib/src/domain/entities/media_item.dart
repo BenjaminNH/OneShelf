@@ -15,10 +15,17 @@ class MediaItem {
     this.plot,
     this.actorNames = const <String>[],
     this.posterRelativePath,
+    this.posterUri,
+    this.posterLastModified,
     this.fanartRelativePath,
+    this.fanartUri,
+    this.fanartLastModified,
     this.folderRelativePath,
     this.primaryVideoRelativePath,
+    this.primaryVideoUri,
+    this.primaryVideoLastModified,
     this.nfoRelativePath,
+    this.nfoUri,
     this.fileSizeBytes,
     this.durationMs,
     this.width,
@@ -35,10 +42,17 @@ class MediaItem {
   final String? code;
   final String? plot;
   final String? posterRelativePath;
+  final String? posterUri;
+  final int? posterLastModified;
   final String? fanartRelativePath;
+  final String? fanartUri;
+  final int? fanartLastModified;
   final String? folderRelativePath;
   final String? primaryVideoRelativePath;
+  final String? primaryVideoUri;
+  final int? primaryVideoLastModified;
   final String? nfoRelativePath;
+  final String? nfoUri;
   final String fileName;
   final int? fileSizeBytes;
   final int? durationMs;

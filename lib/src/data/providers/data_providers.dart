@@ -11,6 +11,7 @@ import '../repositories/media_sources_repository_impl.dart';
 import '../repositories/settings_repository_impl.dart';
 import '../scanning/media_scanner.dart';
 import '../scanning/nfo_parser.dart';
+import '../../shared/debug/app_debug_logger.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final database = AppDatabase();
@@ -31,11 +32,15 @@ final mediaScannerProvider = Provider<MediaScanner>((ref) {
     database: ref.watch(appDatabaseProvider),
     documentTreeAccess: ref.watch(documentTreeAccessProvider),
     nfoParser: ref.watch(nfoParserProvider),
+    debugLogger: ref.watch(appDebugLoggerProvider),
   );
 });
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  return SettingsRepositoryImpl(ref.watch(appDatabaseProvider));
+  return SettingsRepositoryImpl(
+    ref.watch(appDatabaseProvider),
+    ref.watch(appDebugLoggerProvider),
+  );
 });
 
 final mediaSourcesRepositoryProvider = Provider<MediaSourcesRepository>((ref) {

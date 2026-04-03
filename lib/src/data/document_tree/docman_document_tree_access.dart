@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:docman/docman.dart';
@@ -36,15 +37,24 @@ class DocmanDocumentTreeAccess implements DocumentTreeAccess {
   }
 
   @override
+  Future<DocumentFile?> findChild(DocumentFile directory, String name) {
+    return directory.find(name);
+  }
+
+  @override
   Future<String?> readText(DocumentFile file) async {
     if (!file.exists || !file.isFile) {
       return null;
     }
-    final buffer = StringBuffer();
-    await for (final chunk in file.readAsString()) {
-      buffer.write(chunk);
+    final bytes = await file.read();
+    if (bytes == null || bytes.isEmpty) {
+      return null;
     }
-    return buffer.isEmpty ? null : buffer.toString();
+    try {
+      return utf8.decode(bytes, allowMalformed: true);
+    } catch (_) {
+      return latin1.decode(bytes, allowInvalid: true);
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:docman/docman.dart';
 import 'package:drift/drift.dart';
 
 import '../../domain/entities/media_source.dart' as domain;
+import '../../shared/debug/app_debug_logger.dart';
 import '../database/app_database.dart';
 import '../database/database_mappers.dart';
 import '../document_tree/document_tree_access.dart';
@@ -29,17 +30,31 @@ class MediaScanner {
     required AppDatabase database,
     required DocumentTreeAccess documentTreeAccess,
     required NfoParser nfoParser,
+    required AppDebugLogger debugLogger,
   }) : _database = database,
        _documentTreeAccess = documentTreeAccess,
-       _nfoParser = nfoParser;
+       _nfoParser = nfoParser,
+       _debugLogger = debugLogger;
 
   final AppDatabase _database;
   final DocumentTreeAccess _documentTreeAccess;
   final NfoParser _nfoParser;
+  final AppDebugLogger _debugLogger;
 
   Future<ScanSourceResult> scanSource(MediaSourcesTableData source) async {
     final now = DateTime.now();
     final scanSessionId = '${source.id}-${now.microsecondsSinceEpoch}';
+    final scanStopwatch = Stopwatch()..start();
+    var nfoCount = 0;
+    var videoFolderCount = 0;
+    await _debugLogger.log(
+      scope: 'scan',
+      event: 'source_started',
+      fields: <String, Object?>{
+        'sourceId': source.id,
+        'displayName': source.displayName,
+      },
+    );
 
     await _database
         .into(_database.scanSessionsTable)
@@ -72,6 +87,14 @@ class MediaScanner {
     try {
       final root = await _documentTreeAccess.resolve(source.rootUri);
       if (root == null || !root.exists || !root.isDirectory) {
+        await _debugLogger.log(
+          scope: 'scan',
+          event: 'source_unavailable',
+          fields: <String, Object?>{
+            'sourceId': source.id,
+            'elapsedMs': scanStopwatch.elapsedMilliseconds,
+          },
+        );
         return _failScan(
           sourceId: source.id,
           scanSessionId: scanSessionId,
@@ -80,7 +103,17 @@ class MediaScanner {
         );
       }
 
+      final collectStopwatch = Stopwatch()..start();
       final files = await _collectFiles(root);
+      await _debugLogger.log(
+        scope: 'scan',
+        event: 'collect_files_done',
+        fields: <String, Object?>{
+          'sourceId': source.id,
+          'fileCount': files.length,
+          'elapsedMs': collectStopwatch.elapsedMilliseconds,
+        },
+      );
       final filesByDir = <String, List<_FoundFile>>{};
       for (final file in files) {
         filesByDir.putIfAbsent(file.parentRelativePath, () => <_FoundFile>[]);
@@ -109,6 +142,7 @@ class MediaScanner {
       }
 
       final scannedMediaIds = <String>{};
+      final scannedItems = <_ScannedMediaRecord>[];
       final existingRows = await (_database.select(
         _database.mediaItemsTable,
       )..where((tbl) => tbl.sourceId.equals(source.id))).get();
@@ -116,6 +150,7 @@ class MediaScanner {
 
       var foundCount = 0;
       var updatedCount = 0;
+      videoFolderCount = videosByFolder.length;
 
       for (final entry in videosByFolder.entries) {
         final folderPath = entry.key;
@@ -128,6 +163,7 @@ class MediaScanner {
 
         ParsedNfo parsedNfo = const ParsedNfo();
         if (nfoFile != null) {
+          nfoCount += 1;
           final nfoText = await _documentTreeAccess.readText(nfoFile.document);
           if (nfoText != null) {
             parsedNfo = _nfoParser.parse(nfoText);
@@ -153,43 +189,78 @@ class MediaScanner {
           nfoTitle: parsedNfo.title,
         );
 
-        await _database
-            .into(_database.mediaItemsTable)
-            .insertOnConflictUpdate(
-              MediaItemsTableCompanion(
-                id: Value(mediaId),
-                sourceId: Value(source.id),
-                title: Value(parsedNfo.title),
-                displayLabel: Value(displayLabel),
-                actorNamesJson: Value(encodeActorNames(parsedNfo.actors)),
-                code: Value(parsedNfo.code),
-                plot: Value(parsedNfo.plot),
-                posterRelativePath: Value(posterFile?.relativePath),
-                fanartRelativePath: Value(fanartFile?.relativePath),
-                folderRelativePath: Value(
-                  folderPath.isEmpty ? null : folderPath,
-                ),
-                primaryVideoRelativePath: Value(primary.relativePath),
-                nfoRelativePath: Value(nfoFile?.relativePath),
-                fileName: Value(primary.name),
-                fileSizeBytes: Value(primary.size),
-                durationMs: const Value(null),
-                width: const Value(null),
-                height: const Value(null),
-                isPlayable: const Value(true),
-                isMissing: const Value(false),
-                firstSeenAt: Value(existing?.firstSeenAt ?? now),
-                lastSeenAt: Value(now),
-                createdAt: Value(existing?.createdAt ?? now),
-                updatedAt: Value(now),
+        scannedItems.add(
+          _ScannedMediaRecord(
+            id: mediaId,
+            companion: MediaItemsTableCompanion(
+              id: Value(mediaId),
+              sourceId: Value(source.id),
+              title: Value(parsedNfo.title),
+              displayLabel: Value(displayLabel),
+              actorNamesJson: Value(encodeActorNames(parsedNfo.actors)),
+              code: Value(parsedNfo.code),
+              plot: Value(parsedNfo.plot),
+              posterRelativePath: Value(posterFile?.relativePath),
+              posterUri: Value(posterFile?.uri),
+              posterLastModified: Value(
+                posterFile == null || posterFile.lastModified == 0
+                    ? null
+                    : posterFile.lastModified,
               ),
-            );
+              fanartRelativePath: Value(fanartFile?.relativePath),
+              fanartUri: Value(fanartFile?.uri),
+              fanartLastModified: Value(
+                fanartFile == null || fanartFile.lastModified == 0
+                    ? null
+                    : fanartFile.lastModified,
+              ),
+              folderRelativePath: Value(folderPath.isEmpty ? null : folderPath),
+              primaryVideoRelativePath: Value(primary.relativePath),
+              primaryVideoUri: Value(primary.uri),
+              primaryVideoLastModified: Value(
+                primary.lastModified == 0 ? null : primary.lastModified,
+              ),
+              nfoRelativePath: Value(nfoFile?.relativePath),
+              nfoUri: Value(nfoFile?.uri),
+              fileName: Value(primary.name),
+              fileSizeBytes: Value(primary.size),
+              durationMs: Value(existing?.durationMs),
+              width: Value(existing?.width),
+              height: Value(existing?.height),
+              isPlayable: const Value(true),
+              isMissing: const Value(false),
+              firstSeenAt: Value(existing?.firstSeenAt ?? now),
+              lastSeenAt: Value(now),
+              createdAt: Value(existing?.createdAt ?? now),
+              updatedAt: Value(now),
+            ),
+          ),
+        );
       }
 
-      final missingCount = await _markMissing(
-        sourceId: source.id,
-        now: now,
-        activeIds: scannedMediaIds,
+      late final int missingCount;
+      final writeStopwatch = Stopwatch()..start();
+      await _database.transaction(() async {
+        for (final item in scannedItems) {
+          await _database
+              .into(_database.mediaItemsTable)
+              .insertOnConflictUpdate(item.companion);
+        }
+        missingCount = await _markMissing(
+          sourceId: source.id,
+          now: now,
+          activeIds: scannedMediaIds,
+        );
+      });
+      await _debugLogger.log(
+        scope: 'scan',
+        event: 'database_write_done',
+        fields: <String, Object?>{
+          'sourceId': source.id,
+          'itemsWritten': scannedItems.length,
+          'itemsMissing': missingCount,
+          'elapsedMs': writeStopwatch.elapsedMilliseconds,
+        },
       );
 
       final mediaCount = await _countActiveMedia(source.id);
@@ -223,12 +294,36 @@ class MediaScanner {
         ),
       );
 
+      await _debugLogger.log(
+        scope: 'scan',
+        event: 'source_finished',
+        fields: <String, Object?>{
+          'sourceId': source.id,
+          'elapsedMs': scanStopwatch.elapsedMilliseconds,
+          'sessionId': scanSessionId,
+          'nfoCount': nfoCount,
+          'videoFolderCount': videoFolderCount,
+          'itemsFound': foundCount,
+          'itemsUpdated': updatedCount,
+          'itemsMissing': missingCount,
+        },
+      );
+
       return ScanSourceResult(
         itemsFound: foundCount,
         itemsUpdated: updatedCount,
         itemsMissing: missingCount,
       );
     } catch (error) {
+      await _debugLogger.log(
+        scope: 'scan',
+        event: 'source_failed',
+        fields: <String, Object?>{
+          'sourceId': source.id,
+          'elapsedMs': scanStopwatch.elapsedMilliseconds,
+          'error': error.toString(),
+        },
+      );
       return _failScan(
         sourceId: source.id,
         scanSessionId: scanSessionId,
@@ -279,9 +374,12 @@ class MediaScanner {
   }
 
   Future<List<_FoundFile>> _collectFiles(DocumentFile root) async {
-    final found = <_FoundFile>[];
-
-    Future<void> walk(DocumentFile directory, String relativeDirPath) async {
+    Future<List<_FoundFile>> walk(
+      DocumentFile directory,
+      String relativeDirPath,
+    ) async {
+      final found = <_FoundFile>[];
+      final subdirectories = <(DocumentFile directory, String relativePath)>[];
       final children = await _documentTreeAccess.listChildren(directory);
       for (final child in children) {
         final childRelativePath = normalizePath(
@@ -290,7 +388,7 @@ class MediaScanner {
               : '$relativeDirPath/${child.name}',
         );
         if (child.isDirectory) {
-          await walk(child, childRelativePath);
+          subdirectories.add((child, childRelativePath));
           continue;
         }
         if (child.isFile) {
@@ -307,10 +405,22 @@ class MediaScanner {
           );
         }
       }
+
+      const batchSize = 6;
+      for (var index = 0; index < subdirectories.length; index += batchSize) {
+        final batch = subdirectories.skip(index).take(batchSize).toList();
+        final nested = await Future.wait(
+          batch.map((entry) => walk(entry.$1, entry.$2)),
+        );
+        for (final nestedFiles in nested) {
+          found.addAll(nestedFiles);
+        }
+      }
+
+      return found;
     }
 
-    await walk(root, '');
-    return found;
+    return walk(root, '');
   }
 
   _FoundFile _selectPrimaryVideo(List<_FoundFile> candidates) {
@@ -419,4 +529,11 @@ class _FoundFile {
   final String parentRelativePath;
   final int size;
   final int lastModified;
+}
+
+class _ScannedMediaRecord {
+  const _ScannedMediaRecord({required this.id, required this.companion});
+
+  final String id;
+  final MediaItemsTableCompanion companion;
 }
