@@ -1083,6 +1083,18 @@ class $MediaItemsTableTable extends MediaItemsTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _folderFingerprintMeta = const VerificationMeta(
+    'folderFingerprint',
+  );
+  @override
+  late final GeneratedColumn<String> folderFingerprint =
+      GeneratedColumn<String>(
+        'folder_fingerprint',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _durationMsMeta = const VerificationMeta(
     'durationMs',
   );
@@ -1209,6 +1221,7 @@ class $MediaItemsTableTable extends MediaItemsTable
     nfoUri,
     fileName,
     fileSizeBytes,
+    folderFingerprint,
     durationMs,
     width,
     height,
@@ -1398,6 +1411,15 @@ class $MediaItemsTableTable extends MediaItemsTable
         ),
       );
     }
+    if (data.containsKey('folder_fingerprint')) {
+      context.handle(
+        _folderFingerprintMeta,
+        folderFingerprint.isAcceptableOrUnknown(
+          data['folder_fingerprint']!,
+          _folderFingerprintMeta,
+        ),
+      );
+    }
     if (data.containsKey('duration_ms')) {
       context.handle(
         _durationMsMeta,
@@ -1559,6 +1581,10 @@ class $MediaItemsTableTable extends MediaItemsTable
         DriftSqlType.int,
         data['${effectivePrefix}file_size_bytes'],
       ),
+      folderFingerprint: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}folder_fingerprint'],
+      ),
       durationMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}duration_ms'],
@@ -1627,6 +1653,7 @@ class MediaItemsTableData extends DataClass
   final String? nfoUri;
   final String fileName;
   final int? fileSizeBytes;
+  final String? folderFingerprint;
   final int? durationMs;
   final int? width;
   final int? height;
@@ -1658,6 +1685,7 @@ class MediaItemsTableData extends DataClass
     this.nfoUri,
     required this.fileName,
     this.fileSizeBytes,
+    this.folderFingerprint,
     this.durationMs,
     this.width,
     this.height,
@@ -1728,6 +1756,9 @@ class MediaItemsTableData extends DataClass
     if (!nullToAbsent || fileSizeBytes != null) {
       map['file_size_bytes'] = Variable<int>(fileSizeBytes);
     }
+    if (!nullToAbsent || folderFingerprint != null) {
+      map['folder_fingerprint'] = Variable<String>(folderFingerprint);
+    }
     if (!nullToAbsent || durationMs != null) {
       map['duration_ms'] = Variable<int>(durationMs);
     }
@@ -1797,6 +1828,9 @@ class MediaItemsTableData extends DataClass
       fileSizeBytes: fileSizeBytes == null && nullToAbsent
           ? const Value.absent()
           : Value(fileSizeBytes),
+      folderFingerprint: folderFingerprint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(folderFingerprint),
       durationMs: durationMs == null && nullToAbsent
           ? const Value.absent()
           : Value(durationMs),
@@ -1852,6 +1886,9 @@ class MediaItemsTableData extends DataClass
       nfoUri: serializer.fromJson<String?>(json['nfoUri']),
       fileName: serializer.fromJson<String>(json['fileName']),
       fileSizeBytes: serializer.fromJson<int?>(json['fileSizeBytes']),
+      folderFingerprint: serializer.fromJson<String?>(
+        json['folderFingerprint'],
+      ),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       width: serializer.fromJson<int?>(json['width']),
       height: serializer.fromJson<int?>(json['height']),
@@ -1892,6 +1929,7 @@ class MediaItemsTableData extends DataClass
       'nfoUri': serializer.toJson<String?>(nfoUri),
       'fileName': serializer.toJson<String>(fileName),
       'fileSizeBytes': serializer.toJson<int?>(fileSizeBytes),
+      'folderFingerprint': serializer.toJson<String?>(folderFingerprint),
       'durationMs': serializer.toJson<int?>(durationMs),
       'width': serializer.toJson<int?>(width),
       'height': serializer.toJson<int?>(height),
@@ -1926,6 +1964,7 @@ class MediaItemsTableData extends DataClass
     Value<String?> nfoUri = const Value.absent(),
     String? fileName,
     Value<int?> fileSizeBytes = const Value.absent(),
+    Value<String?> folderFingerprint = const Value.absent(),
     Value<int?> durationMs = const Value.absent(),
     Value<int?> width = const Value.absent(),
     Value<int?> height = const Value.absent(),
@@ -1977,6 +2016,9 @@ class MediaItemsTableData extends DataClass
     fileSizeBytes: fileSizeBytes.present
         ? fileSizeBytes.value
         : this.fileSizeBytes,
+    folderFingerprint: folderFingerprint.present
+        ? folderFingerprint.value
+        : this.folderFingerprint,
     durationMs: durationMs.present ? durationMs.value : this.durationMs,
     width: width.present ? width.value : this.width,
     height: height.present ? height.value : this.height,
@@ -2034,6 +2076,9 @@ class MediaItemsTableData extends DataClass
       fileSizeBytes: data.fileSizeBytes.present
           ? data.fileSizeBytes.value
           : this.fileSizeBytes,
+      folderFingerprint: data.folderFingerprint.present
+          ? data.folderFingerprint.value
+          : this.folderFingerprint,
       durationMs: data.durationMs.present
           ? data.durationMs.value
           : this.durationMs,
@@ -2078,6 +2123,7 @@ class MediaItemsTableData extends DataClass
           ..write('nfoUri: $nfoUri, ')
           ..write('fileName: $fileName, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('folderFingerprint: $folderFingerprint, ')
           ..write('durationMs: $durationMs, ')
           ..write('width: $width, ')
           ..write('height: $height, ')
@@ -2114,6 +2160,7 @@ class MediaItemsTableData extends DataClass
     nfoUri,
     fileName,
     fileSizeBytes,
+    folderFingerprint,
     durationMs,
     width,
     height,
@@ -2149,6 +2196,7 @@ class MediaItemsTableData extends DataClass
           other.nfoUri == this.nfoUri &&
           other.fileName == this.fileName &&
           other.fileSizeBytes == this.fileSizeBytes &&
+          other.folderFingerprint == this.folderFingerprint &&
           other.durationMs == this.durationMs &&
           other.width == this.width &&
           other.height == this.height &&
@@ -2182,6 +2230,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
   final Value<String?> nfoUri;
   final Value<String> fileName;
   final Value<int?> fileSizeBytes;
+  final Value<String?> folderFingerprint;
   final Value<int?> durationMs;
   final Value<int?> width;
   final Value<int?> height;
@@ -2214,6 +2263,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.nfoUri = const Value.absent(),
     this.fileName = const Value.absent(),
     this.fileSizeBytes = const Value.absent(),
+    this.folderFingerprint = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.width = const Value.absent(),
     this.height = const Value.absent(),
@@ -2247,6 +2297,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.nfoUri = const Value.absent(),
     required String fileName,
     this.fileSizeBytes = const Value.absent(),
+    this.folderFingerprint = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.width = const Value.absent(),
     this.height = const Value.absent(),
@@ -2287,6 +2338,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Expression<String>? nfoUri,
     Expression<String>? fileName,
     Expression<int>? fileSizeBytes,
+    Expression<String>? folderFingerprint,
     Expression<int>? durationMs,
     Expression<int>? width,
     Expression<int>? height,
@@ -2327,6 +2379,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       if (nfoUri != null) 'nfo_uri': nfoUri,
       if (fileName != null) 'file_name': fileName,
       if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
+      if (folderFingerprint != null) 'folder_fingerprint': folderFingerprint,
       if (durationMs != null) 'duration_ms': durationMs,
       if (width != null) 'width': width,
       if (height != null) 'height': height,
@@ -2362,6 +2415,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Value<String?>? nfoUri,
     Value<String>? fileName,
     Value<int?>? fileSizeBytes,
+    Value<String?>? folderFingerprint,
     Value<int?>? durationMs,
     Value<int?>? width,
     Value<int?>? height,
@@ -2397,6 +2451,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       nfoUri: nfoUri ?? this.nfoUri,
       fileName: fileName ?? this.fileName,
       fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      folderFingerprint: folderFingerprint ?? this.folderFingerprint,
       durationMs: durationMs ?? this.durationMs,
       width: width ?? this.width,
       height: height ?? this.height,
@@ -2480,6 +2535,9 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     if (fileSizeBytes.present) {
       map['file_size_bytes'] = Variable<int>(fileSizeBytes.value);
     }
+    if (folderFingerprint.present) {
+      map['folder_fingerprint'] = Variable<String>(folderFingerprint.value);
+    }
     if (durationMs.present) {
       map['duration_ms'] = Variable<int>(durationMs.value);
     }
@@ -2537,6 +2595,7 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
           ..write('nfoUri: $nfoUri, ')
           ..write('fileName: $fileName, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('folderFingerprint: $folderFingerprint, ')
           ..write('durationMs: $durationMs, ')
           ..write('width: $width, ')
           ..write('height: $height, ')
@@ -5005,6 +5064,7 @@ typedef $$MediaItemsTableTableCreateCompanionBuilder =
       Value<String?> nfoUri,
       required String fileName,
       Value<int?> fileSizeBytes,
+      Value<String?> folderFingerprint,
       Value<int?> durationMs,
       Value<int?> width,
       Value<int?> height,
@@ -5039,6 +5099,7 @@ typedef $$MediaItemsTableTableUpdateCompanionBuilder =
       Value<String?> nfoUri,
       Value<String> fileName,
       Value<int?> fileSizeBytes,
+      Value<String?> folderFingerprint,
       Value<int?> durationMs,
       Value<int?> width,
       Value<int?> height,
@@ -5193,6 +5254,11 @@ class $$MediaItemsTableTableFilterComposer
 
   ColumnFilters<int> get fileSizeBytes => $composableBuilder(
     column: $table.fileSizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get folderFingerprint => $composableBuilder(
+    column: $table.folderFingerprint,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5374,6 +5440,11 @@ class $$MediaItemsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get folderFingerprint => $composableBuilder(
+    column: $table.folderFingerprint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get durationMs => $composableBuilder(
     column: $table.durationMs,
     builder: (column) => ColumnOrderings(column),
@@ -5536,6 +5607,11 @@ class $$MediaItemsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get folderFingerprint => $composableBuilder(
+    column: $table.folderFingerprint,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get durationMs => $composableBuilder(
     column: $table.durationMs,
     builder: (column) => column,
@@ -5647,6 +5723,7 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> nfoUri = const Value.absent(),
                 Value<String> fileName = const Value.absent(),
                 Value<int?> fileSizeBytes = const Value.absent(),
+                Value<String?> folderFingerprint = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
                 Value<int?> width = const Value.absent(),
                 Value<int?> height = const Value.absent(),
@@ -5679,6 +5756,7 @@ class $$MediaItemsTableTableTableManager
                 nfoUri: nfoUri,
                 fileName: fileName,
                 fileSizeBytes: fileSizeBytes,
+                folderFingerprint: folderFingerprint,
                 durationMs: durationMs,
                 width: width,
                 height: height,
@@ -5713,6 +5791,7 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> nfoUri = const Value.absent(),
                 required String fileName,
                 Value<int?> fileSizeBytes = const Value.absent(),
+                Value<String?> folderFingerprint = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
                 Value<int?> width = const Value.absent(),
                 Value<int?> height = const Value.absent(),
@@ -5745,6 +5824,7 @@ class $$MediaItemsTableTableTableManager
                 nfoUri: nfoUri,
                 fileName: fileName,
                 fileSizeBytes: fileSizeBytes,
+                folderFingerprint: folderFingerprint,
                 durationMs: durationMs,
                 width: width,
                 height: height,
