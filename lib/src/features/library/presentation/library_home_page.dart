@@ -6,6 +6,7 @@ import '../../../core/navigation/app_routes.dart';
 import '../../../domain/entities/media_entry.dart';
 import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/media_item.dart';
+import '../../../domain/entities/media_source.dart';
 import '../../library/application/library_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../sources/application/sources_providers.dart';
@@ -41,6 +42,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         recentAsync.isLoading &&
         settingsAsync.isLoading &&
         sourcesAsync.isLoading;
+    final isScanning = sources.any(
+      (source) => source.lastScanStatus == MediaSourceScanStatus.scanning,
+    );
+    final showLoadingCard = isLoading || isScanning;
 
     return Scaffold(
       extendBody: true,
@@ -65,8 +70,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                           _RecentSection(entries: recentEntries),
                           const SizedBox(height: 14),
                         ],
-                        if (isLoading) const _LoadingCard(),
-                        if (!isLoading && entries.isEmpty)
+                        if (showLoadingCard) const _LoadingCard(),
+                        if (!showLoadingCard && entries.isEmpty)
                           _EmptyLibraryCard(
                             hasSources: sources.isNotEmpty,
                             onPrimaryAction: _handlePrimaryAction,
@@ -258,9 +263,12 @@ class _PosterTileWithArtwork extends ConsumerWidget {
         ? null
         : ref.watch(
             relativeImageFileProvider(
-              RelativeAssetRequest(
+              RelativeImageRequest(
                 sourceId: entry.item.sourceId,
                 relativePath: relativePath,
+                uri: entry.item.posterUri,
+                lastModified: entry.item.posterLastModified,
+                variant: RelativeImageVariant.posterThumb,
               ),
             ),
           );
@@ -268,6 +276,7 @@ class _PosterTileWithArtwork extends ConsumerWidget {
     final image = artworkAsync?.asData?.value;
 
     return PosterTile(
+      key: ValueKey(entry.item.id),
       entry: entry,
       image: image == null ? null : FileImage(image),
       onTap: () {
@@ -309,7 +318,7 @@ class _RecentSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 104,
+            height: 82,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: entries.length,
@@ -317,19 +326,46 @@ class _RecentSection extends StatelessWidget {
                   const SizedBox(width: 10),
               itemBuilder: (BuildContext context, int index) {
                 final entry = entries[index];
-                return RecentWatchTile(
-                  entry: entry,
-                  onTap: () {
-                    Navigator.of(
-                      context,
-                    ).pushNamed(AppRoutes.detail(entry.item.id));
-                  },
-                );
+                return _RecentWatchTileWithArtwork(entry: entry);
               },
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RecentWatchTileWithArtwork extends ConsumerWidget {
+  const _RecentWatchTileWithArtwork({required this.entry});
+
+  final MediaEntry entry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final relativePath = entry.item.posterRelativePath;
+    final artworkAsync = relativePath == null
+        ? null
+        : ref.watch(
+            relativeImageFileProvider(
+              RelativeImageRequest(
+                sourceId: entry.item.sourceId,
+                relativePath: relativePath,
+                uri: entry.item.posterUri,
+                lastModified: entry.item.posterLastModified,
+                variant: RelativeImageVariant.posterThumb,
+              ),
+            ),
+          );
+    final image = artworkAsync?.asData?.value;
+
+    return RecentWatchTile(
+      key: ValueKey(entry.item.id),
+      entry: entry,
+      image: image == null ? null : FileImage(image),
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.detail(entry.item.id));
+      },
     );
   }
 }

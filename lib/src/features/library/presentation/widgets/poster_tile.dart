@@ -186,68 +186,106 @@ const List<LinearGradient> _gradients = <LinearGradient>[
 ];
 
 class RecentWatchTile extends StatelessWidget {
-  const RecentWatchTile({required this.entry, this.onTap, super.key});
+  const RecentWatchTile({
+    required this.entry,
+    this.image,
+    this.onTap,
+    super.key,
+  });
 
   final MediaEntry entry;
+  final ImageProvider<Object>? image;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final progress = entry.userState?.progress ?? 0;
-    final actor = entry.item.actorNames.isEmpty
-        ? 'Unknown actor'
-        : entry.item.actorNames.first;
+    final secondaryLabel = entry.item.actorNames.isNotEmpty
+        ? entry.item.actorNames.first
+        : (entry.item.code?.trim().isNotEmpty == true
+              ? entry.item.code!.trim()
+              : fileNameWithoutExtension(entry.item.fileName));
 
     return SizedBox(
-      width: 198,
+      width: 166,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            color: AppPalette.surfaceAlt.withValues(alpha: 0.72),
+            color: AppPalette.surfaceAlt.withValues(alpha: 0.62),
             border: Border.all(color: AppPalette.glassBorder),
           ),
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
-                entry.item.resolvedTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                actor,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppPalette.textSecondary,
-                ),
-              ),
-              const Spacer(),
               ClipRRect(
-                borderRadius: BorderRadius.circular(99),
-                child: LinearProgressIndicator(
-                  minHeight: 5,
-                  value: max(0.02, progress),
-                  backgroundColor: AppPalette.bg.withValues(alpha: 0.65),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppPalette.accent,
-                  ),
+                borderRadius: BorderRadius.circular(12),
+                child: AspectRatio(
+                  aspectRatio: 0.68,
+                  child: image == null
+                      ? const DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                Color(0xFF41536E),
+                                Color(0xFF202A3A),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        )
+                      : Image(image: image!, fit: BoxFit.cover),
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                '${(progress * 100).toStringAsFixed(0)}% watched',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: AppPalette.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      entry.item.resolvedTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        height: 1.05,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      secondaryLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppPalette.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${(progress * 100).toStringAsFixed(0)}% watched',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppPalette.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        minHeight: 4,
+                        value: max(0.02, progress),
+                        backgroundColor: AppPalette.bg.withValues(alpha: 0.65),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppPalette.accent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

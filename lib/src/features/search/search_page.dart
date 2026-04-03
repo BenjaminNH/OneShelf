@@ -93,9 +93,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: const <Widget>[
-                      _HintChip(text: 'File name only'),
-                    ],
+                    children: const <Widget>[_HintChip(text: 'File name only')],
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -206,9 +204,12 @@ class _SearchResultTile extends ConsumerWidget {
         ? null
         : ref.watch(
             relativeImageFileProvider(
-              RelativeAssetRequest(
+              RelativeImageRequest(
                 sourceId: entry.item.sourceId,
                 relativePath: relativePath,
+                uri: entry.item.posterUri,
+                lastModified: entry.item.posterLastModified,
+                variant: RelativeImageVariant.posterThumb,
               ),
             ),
           );
@@ -338,7 +339,9 @@ String? _resultSubtitle(MediaEntry entry) {
   final title = entry.item.resolvedTitle.trim().toLowerCase();
   final fileName = entry.item.fileName.trim();
   final fileStem = fileNameWithoutExtension(fileName).trim().toLowerCase();
-  if (fileName.isEmpty || title == fileName.toLowerCase() || title == fileStem) {
+  if (fileName.isEmpty ||
+      title == fileName.toLowerCase() ||
+      title == fileStem) {
     return null;
   }
   return fileName;

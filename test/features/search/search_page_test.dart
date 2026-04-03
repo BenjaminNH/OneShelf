@@ -59,6 +59,14 @@ class _FakeLibraryRepository implements LibraryRepository {
   Future<void> updateRating(String mediaId, double? rating) async {}
 
   @override
+  Future<void> updateTechnicalMetadata({
+    required String mediaId,
+    int? durationMs,
+    int? width,
+    int? height,
+  }) async {}
+
+  @override
   Stream<MediaEntry?> watchEntry(String mediaId) => const Stream.empty();
 
   @override
