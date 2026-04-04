@@ -93,13 +93,16 @@ class DetailPage extends StatelessWidget {
                     isResolvingTechnicalMetadata: isResolvingTechnicalMetadata,
                   ),
                   const SizedBox(height: 12),
-                  _InfoCard(
-                    title: 'Media path',
-                    body:
-                        item.primaryVideoRelativePath ??
-                        item.folderRelativePath ??
-                        item.fileName,
-                    monospaced: true,
+                  SizedBox(
+                    width: double.infinity,
+                    child: _InfoCard(
+                      title: 'Media path',
+                      body:
+                          item.primaryVideoRelativePath ??
+                          item.folderRelativePath ??
+                          item.fileName,
+                      monospaced: true,
+                    ),
                   ),
                 ],
               ),

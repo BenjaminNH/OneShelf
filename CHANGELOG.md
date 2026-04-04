@@ -7,6 +7,23 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Added
+- Background metadata prefill service that fetches video metadata (duration, resolution) after library scan completes, improving detail page load time from 650-4122ms to 150-230ms.
+- Skeleton loading state for detail page, replacing full-screen loading indicator with placeholder content for better perceived performance.
+- Indexing progress indicator on home page header (debug builds only) to track metadata prefill progress.
+- Profile logging infrastructure for performance analysis with `AppDebugLogger`.
+
+### Changed
+- Metadata prefill now uses batch database updates to prevent UI jank and item reordering during indexing.
+- Metadata prefill delays 3 seconds after scan completion to let the poster wall stabilize first.
+- Technical metadata updates no longer modify `updatedAt` field, preventing unwanted sort order changes.
+- Debug logging is now completely disabled in release builds for zero performance overhead.
+
+### Fixed
+- Poster wall no longer flickers or reorders during metadata indexing.
+- Detail pages now load consistently fast with pre-filled metadata.
+- Media path card in detail page now uses consistent full width with other info cards.
+
 ## [0.1.0] - 2026-04-03
 
 ### Added
