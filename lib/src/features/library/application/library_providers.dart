@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/providers/data_providers.dart';
@@ -5,6 +7,7 @@ import '../../../domain/entities/media_entry.dart';
 import '../../../domain/entities/media_item.dart';
 import '../../../domain/entities/scan_report.dart';
 import '../../../domain/repositories/library_repository.dart';
+import '../../metadata/metadata_providers.dart';
 
 final librarySortProvider = NotifierProvider<LibrarySortNotifier, MediaSort>(
   LibrarySortNotifier.new,
@@ -82,16 +85,73 @@ class LibraryActions {
     );
   }
 
-  Future<ScanReport> scanAllSources() {
-    return _repository.scanAllSources();
+  Future<ScanReport> scanAllSources() async {
+    final report = await _repository.scanAllSources();
+    unawaited(_triggerMetadataPrefillWithDelay());
+    return report;
   }
 
-  Future<ScanReport> scanSource(String sourceId) {
-    return _repository.scanSource(sourceId);
+  Future<ScanReport> scanSource(String sourceId) async {
+    final report = await _repository.scanSource(sourceId);
+    unawaited(_triggerMetadataPrefillWithDelay());
+    return report;
   }
 
-  Future<void> rebuildLibrary() {
-    return _repository.rebuildLibrary();
+  Future<void> rebuildLibrary() async {
+    await _repository.rebuildLibrary();
+    unawaited(_triggerMetadataPrefillWithDelay());
+  }
+
+  Future<void> _triggerMetadataPrefillWithDelay() async {
+    final service = _ref.read(metadataPrefillServiceProvider);
+
+    if (_ref.read(metadataPrefillStatusProvider).isRunning) {
+      return;
+    }
+
+    final items = await service.getItemsNeedingMetadata();
+    if (items.isEmpty) {
+      return;
+    }
+
+    final statusNotifier = _ref.read(metadataPrefillStatusProvider.notifier);
+    statusNotifier.pending(items.length);
+
+    await Future.delayed(service.delayBeforeStart);
+
+    if (_ref.read(metadataPrefillStatusProvider).isRunning) {
+      return;
+    }
+
+    statusNotifier.start(items.length);
+    try {
+      final updated = await service.prefillMissingMetadata();
+      statusNotifier.complete(updated);
+    } catch (e) {
+      statusNotifier.error(e.toString());
+    }
+  }
+
+  Future<void> _triggerMetadataPrefill() async {
+    final service = _ref.read(metadataPrefillServiceProvider);
+    final statusNotifier = _ref.read(metadataPrefillStatusProvider.notifier);
+
+    if (_ref.read(metadataPrefillStatusProvider).isRunning) {
+      return;
+    }
+
+    final items = await service.getItemsNeedingMetadata();
+    if (items.isEmpty) {
+      return;
+    }
+
+    statusNotifier.start(items.length);
+    try {
+      final updated = await service.prefillMissingMetadata();
+      statusNotifier.complete(updated);
+    } catch (e) {
+      statusNotifier.error(e.toString());
+    }
   }
 }
 
