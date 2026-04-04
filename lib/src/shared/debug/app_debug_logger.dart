@@ -4,10 +4,13 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:docman/docman.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppDebugLogger {
-  AppDebugLogger();
+  AppDebugLogger({this.enabled = true});
+
+  final bool enabled;
 
   static const String _fileName = 'oneshelf_profile.log';
   static const int _maxBytes = 5 * 1024 * 1024;
@@ -59,6 +62,8 @@ class AppDebugLogger {
     required String event,
     Map<String, Object?> fields = const <String, Object?>{},
   }) async {
+    if (!enabled) return;
+
     final line = _buildLine(scope: scope, event: event, fields: fields);
     developer.log(line, name: 'OneShelfProfile');
 
@@ -92,6 +97,10 @@ class AppDebugLogger {
     Map<String, Object?> fields = const <String, Object?>{},
     required Future<T> Function() action,
   }) async {
+    if (!enabled) {
+      return action();
+    }
+
     final stopwatch = Stopwatch()..start();
     try {
       final result = await action();
@@ -131,5 +140,5 @@ class AppDebugLogger {
 }
 
 final appDebugLoggerProvider = Provider<AppDebugLogger>((ref) {
-  return AppDebugLogger();
+  return AppDebugLogger(enabled: !kReleaseMode);
 });
