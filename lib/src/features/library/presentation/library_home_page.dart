@@ -8,6 +8,7 @@ import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/media_item.dart';
 import '../../../domain/entities/media_source.dart';
 import '../../library/application/library_providers.dart';
+import '../../metadata/metadata_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../sources/application/sources_providers.dart';
 import '../../../shared/media/media_asset_resolver.dart';
@@ -186,14 +187,17 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   }
 }
 
-class _HeaderSection extends StatelessWidget {
+class _HeaderSection extends ConsumerWidget {
   const _HeaderSection({required this.mediaCount});
 
   final int mediaCount;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
+    final metadataStatus = ref.watch(metadataPrefillStatusProvider);
+    final isIndexing = metadataStatus.isRunning;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -224,20 +228,42 @@ class _HeaderSection extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        const Icon(
-                          Icons.grid_view_rounded,
-                          size: 14,
-                          color: AppPalette.success,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$mediaCount indexed',
-                          maxLines: 1,
-                          style: textTheme.labelMedium?.copyWith(
-                            color: AppPalette.textSecondary,
-                            fontWeight: FontWeight.w600,
+                        if (isIndexing) ...[
+                          SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppPalette.accent,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${metadataStatus.processedItems}/${metadataStatus.totalItems} indexing',
+                            maxLines: 1,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: AppPalette.accent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ] else ...[
+                          const Icon(
+                            Icons.grid_view_rounded,
+                            size: 14,
+                            color: AppPalette.success,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$mediaCount indexed',
+                            maxLines: 1,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: AppPalette.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
