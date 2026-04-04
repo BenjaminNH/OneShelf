@@ -11,6 +11,7 @@ import '../data/providers/data_providers.dart';
 import '../domain/entities/media_entry.dart';
 import '../domain/entities/media_item.dart';
 import '../features/detail/presentation/detail_page.dart';
+import '../features/detail/presentation/detail_skeleton.dart';
 import '../features/library/application/library_providers.dart';
 import '../features/player/presentation/player_page.dart';
 import '../features/settings/application/settings_providers.dart';
@@ -22,19 +23,33 @@ import '../shared/debug/app_debug_logger.dart';
 import '../shared/media/local_video_metadata.dart';
 import '../shared/media/media_asset_resolver.dart';
 
-class DetailRoutePage extends ConsumerWidget {
+class DetailRoutePage extends ConsumerStatefulWidget {
   const DetailRoutePage({required this.mediaId, super.key});
 
   final String mediaId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DetailRoutePage> createState() => _DetailRoutePageState();
+}
+
+class _DetailRoutePageState extends ConsumerState<DetailRoutePage> {
+  final Stopwatch _pageStopwatch = Stopwatch();
+  bool _loggedInitialLoad = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageStopwatch.start();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final documentTreeAccess = ref.read(documentTreeAccessProvider);
     final libraryActions = ref.read(libraryActionsProvider);
     final debugLogger = ref.read(appDebugLoggerProvider);
-    final entryAsync = ref.watch(mediaEntryProvider(mediaId));
+    final entryAsync = ref.watch(mediaEntryProvider(widget.mediaId));
     return entryAsync.when(
-      loading: () => const _RouteLoadingPage(label: 'Loading media details...'),
+      loading: () => const DetailSkeleton(),
       error: (error, stackTrace) =>
           _RouteErrorPage(message: 'Failed to load detail: $error'),
       data: (entry) {
@@ -44,18 +59,26 @@ class DetailRoutePage extends ConsumerWidget {
         final hasPlayableFile =
             (entry.item.primaryVideoUri?.isNotEmpty ?? false) ||
             (entry.item.primaryVideoRelativePath?.isNotEmpty ?? false);
-        unawaited(
-          debugLogger.log(
-            scope: 'detail',
-            event: 'route_entry_loaded',
-            fields: <String, Object?>{
-              'mediaId': entry.item.id,
-              'hasPlayableFile': hasPlayableFile,
-              'hasPoster': entry.item.posterRelativePath != null,
-              'hasFanart': entry.item.fanartRelativePath != null,
-            },
-          ),
-        );
+        if (!_loggedInitialLoad) {
+          _loggedInitialLoad = true;
+          unawaited(
+            debugLogger.log(
+              scope: 'detail',
+              event: 'entry_loaded',
+              fields: <String, Object?>{
+                'mediaId': entry.item.id,
+                'hasPlayableFile': hasPlayableFile,
+                'hasPoster': entry.item.posterRelativePath != null,
+                'hasFanart': entry.item.fanartRelativePath != null,
+                'needsMetadata':
+                    entry.item.durationMs == null ||
+                    entry.item.width == null ||
+                    entry.item.height == null,
+                'elapsedMs': _pageStopwatch.elapsedMilliseconds,
+              },
+            ),
+          );
+        }
         final metadataAsync =
             (entry.item.primaryVideoUri?.isNotEmpty ?? false) &&
                 (entry.item.durationMs == null ||
@@ -100,6 +123,27 @@ class DetailRoutePage extends ConsumerWidget {
         final posterFile = posterAsync?.asData?.value;
         final fanartFile = fanartAsync?.asData?.value;
 
+        final allLoaded =
+            (metadataAsync == null || !metadataAsync.isLoading) &&
+            (posterAsync == null || !posterAsync.isLoading) &&
+            (fanartAsync == null || !fanartAsync.isLoading);
+        if (allLoaded && _pageStopwatch.isRunning) {
+          _pageStopwatch.stop();
+          unawaited(
+            debugLogger.log(
+              scope: 'detail',
+              event: 'page_ready',
+              fields: <String, Object?>{
+                'mediaId': entry.item.id,
+                'hasMetadata': metadata != null,
+                'hasPoster': posterFile != null,
+                'hasFanart': fanartFile != null,
+                'elapsedMs': _pageStopwatch.elapsedMilliseconds,
+              },
+            ),
+          );
+        }
+
         return DetailPage(
           entry: entry,
           effectiveDurationMs: metadata?.durationMs,
@@ -110,12 +154,16 @@ class DetailRoutePage extends ConsumerWidget {
           posterImage: posterFile == null ? null : FileImage(posterFile),
           onPlay: hasPlayableFile
               ? () {
-                  Navigator.of(context).pushNamed(AppRoutes.player(mediaId));
+                  Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.player(widget.mediaId));
                 }
               : null,
           onContinuePlay: entry.hasResume && hasPlayableFile
               ? () {
-                  Navigator.of(context).pushNamed(AppRoutes.player(mediaId));
+                  Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.player(widget.mediaId));
                 }
               : null,
           onOpenExternal: hasPlayableFile
@@ -149,7 +197,7 @@ class DetailRoutePage extends ConsumerWidget {
                 }
               : null,
           onRatingChanged: (rating) {
-            unawaited(libraryActions.updateRating(mediaId, rating));
+            unawaited(libraryActions.updateRating(widget.mediaId, rating));
           },
         );
       },
