@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 
 import '../../domain/entities/media_entry.dart';
@@ -7,16 +9,20 @@ import '../../domain/repositories/library_repository.dart';
 import '../database/app_database.dart';
 import '../database/database_mappers.dart';
 import '../scanning/media_scanner.dart';
+import '../../shared/debug/app_debug_logger.dart';
 
 class LibraryRepositoryImpl implements LibraryRepository {
   LibraryRepositoryImpl({
     required AppDatabase database,
     required MediaScanner mediaScanner,
+    AppDebugLogger? debugLogger,
   }) : _database = database,
-       _mediaScanner = mediaScanner;
+       _mediaScanner = mediaScanner,
+       _debugLogger = debugLogger;
 
   final AppDatabase _database;
   final MediaScanner _mediaScanner;
+  final AppDebugLogger? _debugLogger;
 
   @override
   Stream<List<MediaEntry>> watchLibrary({
@@ -53,6 +59,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
 
   @override
   Stream<MediaEntry?> watchEntry(String mediaId) {
+    final stopwatch = Stopwatch()..start();
     final query =
         _database.select(_database.mediaItemsTable).join([
             leftOuterJoin(
@@ -66,6 +73,20 @@ class LibraryRepositoryImpl implements LibraryRepository {
           ..limit(1);
 
     return query.watchSingleOrNull().map((row) {
+      final elapsedMs = stopwatch.elapsedMilliseconds;
+      stopwatch.reset();
+      stopwatch.start();
+      unawaited(
+        _debugLogger?.log(
+          scope: 'detail',
+          event: 'db_query_entry',
+          fields: <String, Object?>{
+            'mediaId': mediaId,
+            'found': row != null,
+            'elapsedMs': elapsedMs,
+          },
+        ),
+      );
       if (row == null) {
         return null;
       }

@@ -78,10 +78,23 @@ final relativeDocumentProvider =
       ref,
       request,
     ) async {
+      final logger = ref.read(appDebugLoggerProvider);
+      final stopwatch = Stopwatch()..start();
       final access = ref.read(documentTreeAccessProvider);
       final directUri = request.uri?.trim();
       if (directUri != null && directUri.isNotEmpty) {
-        return access.resolve(directUri);
+        final result = await access.resolve(directUri);
+        await logger.log(
+          scope: 'document',
+          event: 'resolve_uri',
+          fields: <String, Object?>{
+            'sourceId': request.sourceId,
+            'elapsedMs': stopwatch.elapsedMilliseconds,
+            'resolved': result != null,
+            'strategy': 'direct_uri',
+          },
+        );
+        return result;
       }
 
       final database = ref.read(appDatabaseProvider);
@@ -90,11 +103,35 @@ final relativeDocumentProvider =
       )..where((tbl) => tbl.id.equals(request.sourceId))).getSingleOrNull();
 
       if (source == null) {
+        await logger.log(
+          scope: 'document',
+          event: 'resolve_path',
+          fields: <String, Object?>{
+            'sourceId': request.sourceId,
+            'relativePath': request.relativePath,
+            'elapsedMs': stopwatch.elapsedMilliseconds,
+            'resolved': false,
+            'strategy': 'path_traversal',
+            'error': 'source_not_found',
+          },
+        );
         return null;
       }
 
       final root = await access.resolve(source.rootUri);
       if (root == null || !root.exists) {
+        await logger.log(
+          scope: 'document',
+          event: 'resolve_path',
+          fields: <String, Object?>{
+            'sourceId': request.sourceId,
+            'relativePath': request.relativePath,
+            'elapsedMs': stopwatch.elapsedMilliseconds,
+            'resolved': false,
+            'strategy': 'path_traversal',
+            'error': 'root_not_found',
+          },
+        );
         return null;
       }
 
@@ -107,11 +144,36 @@ final relativeDocumentProvider =
       for (final segment in segments) {
         final next = await access.findChild(current, segment);
         if (next == null) {
+          await logger.log(
+            scope: 'document',
+            event: 'resolve_path',
+            fields: <String, Object?>{
+              'sourceId': request.sourceId,
+              'relativePath': request.relativePath,
+              'elapsedMs': stopwatch.elapsedMilliseconds,
+              'resolved': false,
+              'strategy': 'path_traversal',
+              'error': 'segment_not_found',
+              'failedSegment': segment,
+            },
+          );
           return null;
         }
         current = next;
       }
 
+      await logger.log(
+        scope: 'document',
+        event: 'resolve_path',
+        fields: <String, Object?>{
+          'sourceId': request.sourceId,
+          'relativePath': request.relativePath,
+          'elapsedMs': stopwatch.elapsedMilliseconds,
+          'resolved': true,
+          'strategy': 'path_traversal',
+          'segmentCount': segments.length,
+        },
+      );
       return current;
     });
 

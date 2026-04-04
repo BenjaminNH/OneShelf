@@ -55,5 +55,6 @@ final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
   return LibraryRepositoryImpl(
     database: ref.watch(appDatabaseProvider),
     mediaScanner: ref.watch(mediaScannerProvider),
+    debugLogger: ref.watch(appDebugLoggerProvider),
   );
 });
