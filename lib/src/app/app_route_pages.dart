@@ -14,6 +14,7 @@ import '../features/detail/presentation/detail_page.dart';
 import '../features/detail/presentation/detail_skeleton.dart';
 import '../features/library/application/library_providers.dart';
 import '../features/player/presentation/player_page.dart';
+import '../features/backup/application/backup_providers.dart';
 import '../features/settings/application/settings_providers.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../features/sources/application/sources_providers.dart';
@@ -212,6 +213,7 @@ class SettingsRoutePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final libraryActions = ref.read(libraryActionsProvider);
     final settingsActions = ref.read(settingsActionsProvider);
+    final backupActions = ref.read(backupActionsProvider);
     final lastScanReportNotifier = ref.read(
       sourceLastScanReportProvider.notifier,
     );
@@ -294,6 +296,30 @@ class SettingsRoutePage extends ConsumerWidget {
                   }
                 }
               : null,
+          onExportBackup: () async {
+            final result = await backupActions.export();
+            if (context.mounted) {
+              _showMessage(
+                context,
+                result.success
+                    ? 'Backup saved to Download/OneShelf (${result.recordCount} records)'
+                    : 'Export failed: ${result.error}',
+              );
+            }
+          },
+          onImportBackup: () async {
+            final filePath = await backupActions.pickBackupFile();
+            if (filePath == null) return;
+            final result = await backupActions.import(filePath);
+            if (context.mounted) {
+              _showMessage(
+                context,
+                result.success
+                    ? 'Restored: ${result.exactMatchCount} exact, ${result.fuzzyMatchCount} fuzzy, ${result.skippedCount} skipped'
+                    : 'Import failed: ${result.error}',
+              );
+            }
+          },
         );
       },
     );

@@ -20,6 +20,8 @@ class SettingsPage extends StatefulWidget {
     this.onClearDebugLog,
     this.debugLogPathLabel,
     this.showProfileLogging = true,
+    this.onExportBackup,
+    this.onImportBackup,
   });
 
   final AppSettings settings;
@@ -35,6 +37,8 @@ class SettingsPage extends StatefulWidget {
   final VoidCallback? onClearDebugLog;
   final String? debugLogPathLabel;
   final bool showProfileLogging;
+  final VoidCallback? onExportBackup;
+  final VoidCallback? onImportBackup;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -244,6 +248,33 @@ class _SettingsPageState extends State<SettingsPage> {
                             onPressed: widget.onClearCache,
                             icon: const Icon(Icons.cleaning_services_rounded),
                             label: const Text('Clear cache'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _GlassCard(
+                  child: _SectionColumn(
+                    title: 'Backup & restore',
+                    subtitle:
+                        'Export your ratings and playback progress to a JSON file. Import to restore after clearing data.',
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.tonalIcon(
+                            onPressed: widget.onExportBackup,
+                            icon: const Icon(Icons.file_upload_rounded),
+                            label: const Text('Export'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: widget.onImportBackup,
+                            icon: const Icon(Icons.file_download_rounded),
+                            label: const Text('Import'),
                           ),
                         ),
                       ],
