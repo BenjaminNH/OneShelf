@@ -7,17 +7,22 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-05
+
 ### Added
 - Background metadata prefill service that fetches video metadata (duration, resolution) after library scan completes, improving detail page load time from 650-4122ms to 150-230ms.
+- Backup and restore support for local ratings and playback progress.
 - Skeleton loading state for detail page, replacing full-screen loading indicator with placeholder content for better perceived performance.
 - Indexing progress indicator on home page header (debug builds only) to track metadata prefill progress.
 - Profile logging infrastructure for performance analysis with `AppDebugLogger`.
+- Adaptive Android launcher icon assets, plus app icon source files for future iOS handoff.
 
 ### Changed
 - Metadata prefill now uses batch database updates to prevent UI jank and item reordering during indexing.
 - Metadata prefill delays 3 seconds after scan completion to let the poster wall stabilize first.
 - Technical metadata updates no longer modify `updatedAt` field, preventing unwanted sort order changes.
 - Debug logging is now completely disabled in release builds for zero performance overhead.
+- Refined the OneShelf launcher icon composition and added Android themed icon support.
 
 ### Fixed
 - Poster wall no longer flickers or reorders during metadata indexing.
@@ -46,5 +51,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Polished player gestures, detail actions, and route callback handling.
 - Refined library and search presentation, including header and label consistency.
 
-[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BenjaminNH/OneShelf/releases/tag/v0.1.0
