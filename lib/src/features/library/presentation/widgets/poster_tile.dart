@@ -1,12 +1,14 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_palette.dart';
 import '../../../../data/scanning/scan_rules.dart';
 import '../../../../domain/entities/media_entry.dart';
+import '../../../settings/application/settings_providers.dart';
 
-class PosterTile extends StatelessWidget {
+class PosterTile extends ConsumerWidget {
   const PosterTile({required this.entry, this.image, this.onTap, super.key});
 
   final MediaEntry entry;
@@ -14,10 +16,13 @@ class PosterTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsAsync = ref.watch(appSettingsProvider);
+    final settings = settingsAsync.asData?.value;
+    final showProgress = settings?.keepResumeHistory ?? true;
     final seed = entry.item.id.hashCode;
     final gradient = _pickGradient(seed);
-    final progress = entry.userState?.progress;
+    final progress = showProgress ? entry.userState?.progress : null;
     final posterLabel = _posterLabel(entry);
 
     return GestureDetector(
