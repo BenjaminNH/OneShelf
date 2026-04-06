@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -200,20 +202,36 @@ class _SearchResultTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final relativePath = entry.item.posterRelativePath;
-    final artworkAsync = relativePath == null
-        ? null
-        : ref.watch(
-            relativeImageFileProvider(
-              RelativeImageRequest(
-                sourceId: entry.item.sourceId,
-                relativePath: relativePath,
-                uri: entry.item.posterUri,
-                lastModified: entry.item.posterLastModified,
-                variant: RelativeImageVariant.posterThumb,
-              ),
-            ),
-          );
-    final imageFile = artworkAsync?.asData?.value;
+    final hasLocalPoster =
+        relativePath != null && relativePath.trim().isNotEmpty;
+
+    File? posterFile;
+
+    if (hasLocalPoster) {
+      final artworkAsync = ref.watch(
+        relativeImageFileProvider(
+          RelativeImageRequest(
+            sourceId: entry.item.sourceId,
+            relativePath: relativePath,
+            uri: entry.item.posterUri,
+            lastModified: entry.item.posterLastModified,
+            variant: RelativeImageVariant.posterThumb,
+          ),
+        ),
+      );
+      posterFile = artworkAsync.asData?.value;
+    } else if (entry.item.hasAutoPoster) {
+      final autoPosterAsync = ref.watch(
+        autoPosterFileProvider(
+          AutoPosterRequest(
+            mediaId: entry.item.id,
+            hasAutoPoster: entry.item.hasAutoPoster,
+          ),
+        ),
+      );
+      posterFile = autoPosterAsync.asData?.value;
+    }
+
     final subtitle = _resultSubtitle(entry);
 
     return ListTile(
@@ -227,7 +245,7 @@ class _SearchResultTile extends ConsumerWidget {
         child: SizedBox(
           width: 38,
           height: 54,
-          child: imageFile == null
+          child: posterFile == null
               ? const DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -237,7 +255,7 @@ class _SearchResultTile extends ConsumerWidget {
                     ),
                   ),
                 )
-              : Image.file(imageFile, fit: BoxFit.cover),
+              : Image.file(posterFile, fit: BoxFit.cover),
         ),
       ),
       title: Text(

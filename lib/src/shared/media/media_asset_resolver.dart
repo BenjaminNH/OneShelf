@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:docman/docman.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../data/providers/data_providers.dart';
 import '../../data/scanning/scan_rules.dart';
@@ -375,6 +376,69 @@ String buildRelativeImageCacheFileName(
       extension ?? request.variant.fileExtension(normalizedPath);
   return '$digest$normalizedExtension';
 }
+
+class AutoPosterRequest {
+  const AutoPosterRequest({required this.mediaId, required this.hasAutoPoster});
+
+  final String mediaId;
+  final bool hasAutoPoster;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AutoPosterRequest &&
+          runtimeType == other.runtimeType &&
+          mediaId == other.mediaId &&
+          hasAutoPoster == other.hasAutoPoster;
+
+  @override
+  int get hashCode => Object.hash(mediaId, hasAutoPoster);
+}
+
+final autoPosterFileProvider = FutureProvider.family<File?, AutoPosterRequest>((
+  ref,
+  request,
+) async {
+  if (!request.hasAutoPoster) {
+    return null;
+  }
+
+  final logger = ref.read(appDebugLoggerProvider);
+  try {
+    final cacheDir = await getApplicationCacheDirectory();
+    final autoPosterFile = File(
+      '${cacheDir.path}${Platform.pathSeparator}oneshelf'
+      '${Platform.pathSeparator}auto_posters${Platform.pathSeparator}'
+      '${request.mediaId}.jpg',
+    );
+
+    if (autoPosterFile.existsSync() && autoPosterFile.lengthSync() > 0) {
+      await logger.log(
+        scope: 'auto_poster',
+        event: 'cache_hit',
+        fields: <String, Object?>{'mediaId': request.mediaId},
+      );
+      return autoPosterFile;
+    }
+
+    await logger.log(
+      scope: 'auto_poster',
+      event: 'cache_miss',
+      fields: <String, Object?>{'mediaId': request.mediaId},
+    );
+    return null;
+  } catch (error) {
+    await logger.log(
+      scope: 'auto_poster',
+      event: 'error',
+      fields: <String, Object?>{
+        'mediaId': request.mediaId,
+        'error': error.toString(),
+      },
+    );
+    return null;
+  }
+});
 
 extension on RelativeImageVariant {
   String get directoryName => switch (this) {

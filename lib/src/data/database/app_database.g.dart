@@ -965,6 +965,32 @@ class $MediaItemsTableTable extends MediaItemsTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hasAutoPosterMeta = const VerificationMeta(
+    'hasAutoPoster',
+  );
+  @override
+  late final GeneratedColumn<bool> hasAutoPoster = GeneratedColumn<bool>(
+    'has_auto_poster',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_auto_poster" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _autoPosterTimeMsMeta = const VerificationMeta(
+    'autoPosterTimeMs',
+  );
+  @override
+  late final GeneratedColumn<int> autoPosterTimeMs = GeneratedColumn<int>(
+    'auto_poster_time_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _fanartRelativePathMeta =
       const VerificationMeta('fanartRelativePath');
   @override
@@ -1210,6 +1236,8 @@ class $MediaItemsTableTable extends MediaItemsTable
     posterRelativePath,
     posterUri,
     posterLastModified,
+    hasAutoPoster,
+    autoPosterTimeMs,
     fanartRelativePath,
     fanartUri,
     fanartLastModified,
@@ -1316,6 +1344,24 @@ class $MediaItemsTableTable extends MediaItemsTable
         posterLastModified.isAcceptableOrUnknown(
           data['poster_last_modified']!,
           _posterLastModifiedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('has_auto_poster')) {
+      context.handle(
+        _hasAutoPosterMeta,
+        hasAutoPoster.isAcceptableOrUnknown(
+          data['has_auto_poster']!,
+          _hasAutoPosterMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_poster_time_ms')) {
+      context.handle(
+        _autoPosterTimeMsMeta,
+        autoPosterTimeMs.isAcceptableOrUnknown(
+          data['auto_poster_time_ms']!,
+          _autoPosterTimeMsMeta,
         ),
       );
     }
@@ -1537,6 +1583,14 @@ class $MediaItemsTableTable extends MediaItemsTable
         DriftSqlType.int,
         data['${effectivePrefix}poster_last_modified'],
       ),
+      hasAutoPoster: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_auto_poster'],
+      )!,
+      autoPosterTimeMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}auto_poster_time_ms'],
+      ),
       fanartRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}fanart_relative_path'],
@@ -1642,6 +1696,8 @@ class MediaItemsTableData extends DataClass
   final String? posterRelativePath;
   final String? posterUri;
   final int? posterLastModified;
+  final bool hasAutoPoster;
+  final int? autoPosterTimeMs;
   final String? fanartRelativePath;
   final String? fanartUri;
   final int? fanartLastModified;
@@ -1674,6 +1730,8 @@ class MediaItemsTableData extends DataClass
     this.posterRelativePath,
     this.posterUri,
     this.posterLastModified,
+    required this.hasAutoPoster,
+    this.autoPosterTimeMs,
     this.fanartRelativePath,
     this.fanartUri,
     this.fanartLastModified,
@@ -1720,6 +1778,10 @@ class MediaItemsTableData extends DataClass
     }
     if (!nullToAbsent || posterLastModified != null) {
       map['poster_last_modified'] = Variable<int>(posterLastModified);
+    }
+    map['has_auto_poster'] = Variable<bool>(hasAutoPoster);
+    if (!nullToAbsent || autoPosterTimeMs != null) {
+      map['auto_poster_time_ms'] = Variable<int>(autoPosterTimeMs);
     }
     if (!nullToAbsent || fanartRelativePath != null) {
       map['fanart_relative_path'] = Variable<String>(fanartRelativePath);
@@ -1797,6 +1859,10 @@ class MediaItemsTableData extends DataClass
       posterLastModified: posterLastModified == null && nullToAbsent
           ? const Value.absent()
           : Value(posterLastModified),
+      hasAutoPoster: Value(hasAutoPoster),
+      autoPosterTimeMs: autoPosterTimeMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(autoPosterTimeMs),
       fanartRelativePath: fanartRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(fanartRelativePath),
@@ -1867,6 +1933,8 @@ class MediaItemsTableData extends DataClass
       ),
       posterUri: serializer.fromJson<String?>(json['posterUri']),
       posterLastModified: serializer.fromJson<int?>(json['posterLastModified']),
+      hasAutoPoster: serializer.fromJson<bool>(json['hasAutoPoster']),
+      autoPosterTimeMs: serializer.fromJson<int?>(json['autoPosterTimeMs']),
       fanartRelativePath: serializer.fromJson<String?>(
         json['fanartRelativePath'],
       ),
@@ -1914,6 +1982,8 @@ class MediaItemsTableData extends DataClass
       'posterRelativePath': serializer.toJson<String?>(posterRelativePath),
       'posterUri': serializer.toJson<String?>(posterUri),
       'posterLastModified': serializer.toJson<int?>(posterLastModified),
+      'hasAutoPoster': serializer.toJson<bool>(hasAutoPoster),
+      'autoPosterTimeMs': serializer.toJson<int?>(autoPosterTimeMs),
       'fanartRelativePath': serializer.toJson<String?>(fanartRelativePath),
       'fanartUri': serializer.toJson<String?>(fanartUri),
       'fanartLastModified': serializer.toJson<int?>(fanartLastModified),
@@ -1953,6 +2023,8 @@ class MediaItemsTableData extends DataClass
     Value<String?> posterRelativePath = const Value.absent(),
     Value<String?> posterUri = const Value.absent(),
     Value<int?> posterLastModified = const Value.absent(),
+    bool? hasAutoPoster,
+    Value<int?> autoPosterTimeMs = const Value.absent(),
     Value<String?> fanartRelativePath = const Value.absent(),
     Value<String?> fanartUri = const Value.absent(),
     Value<int?> fanartLastModified = const Value.absent(),
@@ -1989,6 +2061,10 @@ class MediaItemsTableData extends DataClass
     posterLastModified: posterLastModified.present
         ? posterLastModified.value
         : this.posterLastModified,
+    hasAutoPoster: hasAutoPoster ?? this.hasAutoPoster,
+    autoPosterTimeMs: autoPosterTimeMs.present
+        ? autoPosterTimeMs.value
+        : this.autoPosterTimeMs,
     fanartRelativePath: fanartRelativePath.present
         ? fanartRelativePath.value
         : this.fanartRelativePath,
@@ -2049,6 +2125,12 @@ class MediaItemsTableData extends DataClass
       posterLastModified: data.posterLastModified.present
           ? data.posterLastModified.value
           : this.posterLastModified,
+      hasAutoPoster: data.hasAutoPoster.present
+          ? data.hasAutoPoster.value
+          : this.hasAutoPoster,
+      autoPosterTimeMs: data.autoPosterTimeMs.present
+          ? data.autoPosterTimeMs.value
+          : this.autoPosterTimeMs,
       fanartRelativePath: data.fanartRelativePath.present
           ? data.fanartRelativePath.value
           : this.fanartRelativePath,
@@ -2112,6 +2194,8 @@ class MediaItemsTableData extends DataClass
           ..write('posterRelativePath: $posterRelativePath, ')
           ..write('posterUri: $posterUri, ')
           ..write('posterLastModified: $posterLastModified, ')
+          ..write('hasAutoPoster: $hasAutoPoster, ')
+          ..write('autoPosterTimeMs: $autoPosterTimeMs, ')
           ..write('fanartRelativePath: $fanartRelativePath, ')
           ..write('fanartUri: $fanartUri, ')
           ..write('fanartLastModified: $fanartLastModified, ')
@@ -2149,6 +2233,8 @@ class MediaItemsTableData extends DataClass
     posterRelativePath,
     posterUri,
     posterLastModified,
+    hasAutoPoster,
+    autoPosterTimeMs,
     fanartRelativePath,
     fanartUri,
     fanartLastModified,
@@ -2185,6 +2271,8 @@ class MediaItemsTableData extends DataClass
           other.posterRelativePath == this.posterRelativePath &&
           other.posterUri == this.posterUri &&
           other.posterLastModified == this.posterLastModified &&
+          other.hasAutoPoster == this.hasAutoPoster &&
+          other.autoPosterTimeMs == this.autoPosterTimeMs &&
           other.fanartRelativePath == this.fanartRelativePath &&
           other.fanartUri == this.fanartUri &&
           other.fanartLastModified == this.fanartLastModified &&
@@ -2219,6 +2307,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
   final Value<String?> posterRelativePath;
   final Value<String?> posterUri;
   final Value<int?> posterLastModified;
+  final Value<bool> hasAutoPoster;
+  final Value<int?> autoPosterTimeMs;
   final Value<String?> fanartRelativePath;
   final Value<String?> fanartUri;
   final Value<int?> fanartLastModified;
@@ -2252,6 +2342,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.posterRelativePath = const Value.absent(),
     this.posterUri = const Value.absent(),
     this.posterLastModified = const Value.absent(),
+    this.hasAutoPoster = const Value.absent(),
+    this.autoPosterTimeMs = const Value.absent(),
     this.fanartRelativePath = const Value.absent(),
     this.fanartUri = const Value.absent(),
     this.fanartLastModified = const Value.absent(),
@@ -2286,6 +2378,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     this.posterRelativePath = const Value.absent(),
     this.posterUri = const Value.absent(),
     this.posterLastModified = const Value.absent(),
+    this.hasAutoPoster = const Value.absent(),
+    this.autoPosterTimeMs = const Value.absent(),
     this.fanartRelativePath = const Value.absent(),
     this.fanartUri = const Value.absent(),
     this.fanartLastModified = const Value.absent(),
@@ -2327,6 +2421,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Expression<String>? posterRelativePath,
     Expression<String>? posterUri,
     Expression<int>? posterLastModified,
+    Expression<bool>? hasAutoPoster,
+    Expression<int>? autoPosterTimeMs,
     Expression<String>? fanartRelativePath,
     Expression<String>? fanartUri,
     Expression<int>? fanartLastModified,
@@ -2363,6 +2459,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       if (posterUri != null) 'poster_uri': posterUri,
       if (posterLastModified != null)
         'poster_last_modified': posterLastModified,
+      if (hasAutoPoster != null) 'has_auto_poster': hasAutoPoster,
+      if (autoPosterTimeMs != null) 'auto_poster_time_ms': autoPosterTimeMs,
       if (fanartRelativePath != null)
         'fanart_relative_path': fanartRelativePath,
       if (fanartUri != null) 'fanart_uri': fanartUri,
@@ -2404,6 +2502,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     Value<String?>? posterRelativePath,
     Value<String?>? posterUri,
     Value<int?>? posterLastModified,
+    Value<bool>? hasAutoPoster,
+    Value<int?>? autoPosterTimeMs,
     Value<String?>? fanartRelativePath,
     Value<String?>? fanartUri,
     Value<int?>? fanartLastModified,
@@ -2438,6 +2538,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
       posterRelativePath: posterRelativePath ?? this.posterRelativePath,
       posterUri: posterUri ?? this.posterUri,
       posterLastModified: posterLastModified ?? this.posterLastModified,
+      hasAutoPoster: hasAutoPoster ?? this.hasAutoPoster,
+      autoPosterTimeMs: autoPosterTimeMs ?? this.autoPosterTimeMs,
       fanartRelativePath: fanartRelativePath ?? this.fanartRelativePath,
       fanartUri: fanartUri ?? this.fanartUri,
       fanartLastModified: fanartLastModified ?? this.fanartLastModified,
@@ -2497,6 +2599,12 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
     }
     if (posterLastModified.present) {
       map['poster_last_modified'] = Variable<int>(posterLastModified.value);
+    }
+    if (hasAutoPoster.present) {
+      map['has_auto_poster'] = Variable<bool>(hasAutoPoster.value);
+    }
+    if (autoPosterTimeMs.present) {
+      map['auto_poster_time_ms'] = Variable<int>(autoPosterTimeMs.value);
     }
     if (fanartRelativePath.present) {
       map['fanart_relative_path'] = Variable<String>(fanartRelativePath.value);
@@ -2584,6 +2692,8 @@ class MediaItemsTableCompanion extends UpdateCompanion<MediaItemsTableData> {
           ..write('posterRelativePath: $posterRelativePath, ')
           ..write('posterUri: $posterUri, ')
           ..write('posterLastModified: $posterLastModified, ')
+          ..write('hasAutoPoster: $hasAutoPoster, ')
+          ..write('autoPosterTimeMs: $autoPosterTimeMs, ')
           ..write('fanartRelativePath: $fanartRelativePath, ')
           ..write('fanartUri: $fanartUri, ')
           ..write('fanartLastModified: $fanartLastModified, ')
@@ -5053,6 +5163,8 @@ typedef $$MediaItemsTableTableCreateCompanionBuilder =
       Value<String?> posterRelativePath,
       Value<String?> posterUri,
       Value<int?> posterLastModified,
+      Value<bool> hasAutoPoster,
+      Value<int?> autoPosterTimeMs,
       Value<String?> fanartRelativePath,
       Value<String?> fanartUri,
       Value<int?> fanartLastModified,
@@ -5088,6 +5200,8 @@ typedef $$MediaItemsTableTableUpdateCompanionBuilder =
       Value<String?> posterRelativePath,
       Value<String?> posterUri,
       Value<int?> posterLastModified,
+      Value<bool> hasAutoPoster,
+      Value<int?> autoPosterTimeMs,
       Value<String?> fanartRelativePath,
       Value<String?> fanartUri,
       Value<int?> fanartLastModified,
@@ -5199,6 +5313,16 @@ class $$MediaItemsTableTableFilterComposer
 
   ColumnFilters<int> get posterLastModified => $composableBuilder(
     column: $table.posterLastModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasAutoPoster => $composableBuilder(
+    column: $table.hasAutoPoster,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get autoPosterTimeMs => $composableBuilder(
+    column: $table.autoPosterTimeMs,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5385,6 +5509,16 @@ class $$MediaItemsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get hasAutoPoster => $composableBuilder(
+    column: $table.hasAutoPoster,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get autoPosterTimeMs => $composableBuilder(
+    column: $table.autoPosterTimeMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get fanartRelativePath => $composableBuilder(
     column: $table.fanartRelativePath,
     builder: (column) => ColumnOrderings(column),
@@ -5558,6 +5692,16 @@ class $$MediaItemsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get hasAutoPoster => $composableBuilder(
+    column: $table.hasAutoPoster,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get autoPosterTimeMs => $composableBuilder(
+    column: $table.autoPosterTimeMs,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get fanartRelativePath => $composableBuilder(
     column: $table.fanartRelativePath,
     builder: (column) => column,
@@ -5712,6 +5856,8 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> posterRelativePath = const Value.absent(),
                 Value<String?> posterUri = const Value.absent(),
                 Value<int?> posterLastModified = const Value.absent(),
+                Value<bool> hasAutoPoster = const Value.absent(),
+                Value<int?> autoPosterTimeMs = const Value.absent(),
                 Value<String?> fanartRelativePath = const Value.absent(),
                 Value<String?> fanartUri = const Value.absent(),
                 Value<int?> fanartLastModified = const Value.absent(),
@@ -5745,6 +5891,8 @@ class $$MediaItemsTableTableTableManager
                 posterRelativePath: posterRelativePath,
                 posterUri: posterUri,
                 posterLastModified: posterLastModified,
+                hasAutoPoster: hasAutoPoster,
+                autoPosterTimeMs: autoPosterTimeMs,
                 fanartRelativePath: fanartRelativePath,
                 fanartUri: fanartUri,
                 fanartLastModified: fanartLastModified,
@@ -5780,6 +5928,8 @@ class $$MediaItemsTableTableTableManager
                 Value<String?> posterRelativePath = const Value.absent(),
                 Value<String?> posterUri = const Value.absent(),
                 Value<int?> posterLastModified = const Value.absent(),
+                Value<bool> hasAutoPoster = const Value.absent(),
+                Value<int?> autoPosterTimeMs = const Value.absent(),
                 Value<String?> fanartRelativePath = const Value.absent(),
                 Value<String?> fanartUri = const Value.absent(),
                 Value<int?> fanartLastModified = const Value.absent(),
@@ -5813,6 +5963,8 @@ class $$MediaItemsTableTableTableManager
                 posterRelativePath: posterRelativePath,
                 posterUri: posterUri,
                 posterLastModified: posterLastModified,
+                hasAutoPoster: hasAutoPoster,
+                autoPosterTimeMs: autoPosterTimeMs,
                 fanartRelativePath: fanartRelativePath,
                 fanartUri: fanartUri,
                 fanartLastModified: fanartLastModified,

@@ -58,6 +58,11 @@ class MediaItemsTable extends Table {
 
   IntColumn get posterLastModified => integer().nullable()();
 
+  BoolColumn get hasAutoPoster =>
+      boolean().withDefault(const Constant(false))();
+
+  IntColumn get autoPosterTimeMs => integer().nullable()();
+
   TextColumn get fanartRelativePath => text().nullable()();
 
   TextColumn get fanartUri => text().nullable()();
@@ -215,7 +220,7 @@ class AppDatabase extends _$AppDatabase {
       driftDatabase(name: 'oneshelf.sqlite');
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -243,6 +248,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 4) {
         await m.addColumn(mediaItemsTable, mediaItemsTable.folderFingerprint);
+      }
+      if (from < 5) {
+        await m.addColumn(mediaItemsTable, mediaItemsTable.hasAutoPoster);
+        await m.addColumn(mediaItemsTable, mediaItemsTable.autoPosterTimeMs);
       }
     },
     beforeOpen: (details) async {

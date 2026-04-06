@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -285,26 +287,40 @@ class _PosterTileWithArtwork extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final relativePath = entry.item.posterRelativePath;
-    final artworkAsync = relativePath == null
-        ? null
-        : ref.watch(
-            relativeImageFileProvider(
-              RelativeImageRequest(
-                sourceId: entry.item.sourceId,
-                relativePath: relativePath,
-                uri: entry.item.posterUri,
-                lastModified: entry.item.posterLastModified,
-                variant: RelativeImageVariant.posterThumb,
-              ),
-            ),
-          );
+    final hasLocalPoster =
+        relativePath != null && relativePath.trim().isNotEmpty;
 
-    final image = artworkAsync?.asData?.value;
+    File? posterFile;
+
+    if (hasLocalPoster) {
+      final artworkAsync = ref.watch(
+        relativeImageFileProvider(
+          RelativeImageRequest(
+            sourceId: entry.item.sourceId,
+            relativePath: relativePath,
+            uri: entry.item.posterUri,
+            lastModified: entry.item.posterLastModified,
+            variant: RelativeImageVariant.posterThumb,
+          ),
+        ),
+      );
+      posterFile = artworkAsync.asData?.value;
+    } else if (entry.item.hasAutoPoster) {
+      final autoPosterAsync = ref.watch(
+        autoPosterFileProvider(
+          AutoPosterRequest(
+            mediaId: entry.item.id,
+            hasAutoPoster: entry.item.hasAutoPoster,
+          ),
+        ),
+      );
+      posterFile = autoPosterAsync.asData?.value;
+    }
 
     return PosterTile(
       key: ValueKey(entry.item.id),
       entry: entry,
-      image: image == null ? null : FileImage(image),
+      image: posterFile == null ? null : FileImage(posterFile),
       onTap: () {
         Navigator.of(context).pushNamed(AppRoutes.detail(entry.item.id));
       },

@@ -17,6 +17,8 @@ class MediaItem {
     this.posterRelativePath,
     this.posterUri,
     this.posterLastModified,
+    this.hasAutoPoster = false,
+    this.autoPosterTimeMs,
     this.fanartRelativePath,
     this.fanartUri,
     this.fanartLastModified,
@@ -44,6 +46,8 @@ class MediaItem {
   final String? posterRelativePath;
   final String? posterUri;
   final int? posterLastModified;
+  final bool hasAutoPoster;
+  final int? autoPosterTimeMs;
   final String? fanartRelativePath;
   final String? fanartUri;
   final int? fanartLastModified;

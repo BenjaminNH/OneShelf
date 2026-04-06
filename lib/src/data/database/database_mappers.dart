@@ -41,6 +41,8 @@ extension MediaItemRowMapper on MediaItemsTableData {
       posterRelativePath: posterRelativePath,
       posterUri: posterUri,
       posterLastModified: posterLastModified,
+      hasAutoPoster: hasAutoPoster,
+      autoPosterTimeMs: autoPosterTimeMs,
       fanartRelativePath: fanartRelativePath,
       fanartUri: fanartUri,
       fanartLastModified: fanartLastModified,

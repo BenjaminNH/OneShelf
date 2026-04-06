@@ -94,9 +94,13 @@ class _DetailRoutePageState extends ConsumerState<DetailRoutePage> {
                 ),
               )
             : null;
-        final posterAsync = entry.item.posterRelativePath == null
-            ? null
-            : ref.watch(
+
+        final hasLocalPoster =
+            entry.item.posterRelativePath != null &&
+            entry.item.posterRelativePath!.isNotEmpty;
+
+        final posterAsync = hasLocalPoster
+            ? ref.watch(
                 relativeImageFileProvider(
                   RelativeImageRequest(
                     sourceId: entry.item.sourceId,
@@ -106,7 +110,18 @@ class _DetailRoutePageState extends ConsumerState<DetailRoutePage> {
                     variant: RelativeImageVariant.posterDetail,
                   ),
                 ),
-              );
+              )
+            : entry.item.hasAutoPoster
+            ? ref.watch(
+                autoPosterFileProvider(
+                  AutoPosterRequest(
+                    mediaId: entry.item.id,
+                    hasAutoPoster: entry.item.hasAutoPoster,
+                  ),
+                ),
+              )
+            : null;
+
         final fanartAsync = entry.item.fanartRelativePath == null
             ? null
             : ref.watch(

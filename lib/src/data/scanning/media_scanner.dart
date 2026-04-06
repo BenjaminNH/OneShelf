@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -9,6 +10,7 @@ import '../../shared/debug/app_debug_logger.dart';
 import '../database/app_database.dart';
 import '../database/database_mappers.dart';
 import '../document_tree/document_tree_access.dart';
+import '../services/auto_poster_service.dart';
 import 'nfo_parser.dart';
 import 'scan_rules.dart';
 
@@ -34,15 +36,18 @@ class MediaScanner {
     required DocumentTreeAccess documentTreeAccess,
     required NfoParser nfoParser,
     required AppDebugLogger debugLogger,
+    AutoPosterService? autoPosterService,
   }) : _database = database,
        _documentTreeAccess = documentTreeAccess,
        _nfoParser = nfoParser,
-       _debugLogger = debugLogger;
+       _debugLogger = debugLogger,
+       _autoPosterService = autoPosterService;
 
   final AppDatabase _database;
   final DocumentTreeAccess _documentTreeAccess;
   final NfoParser _nfoParser;
   final AppDebugLogger _debugLogger;
+  final AutoPosterService? _autoPosterService;
 
   Future<ScanSourceResult> scanSource(MediaSourcesTableData source) async {
     final now = DateTime.now();
@@ -210,6 +215,8 @@ class MediaScanner {
           'itemsMissing': missingCount,
         },
       );
+
+      _generateAutoPostersAsync(scannedItems);
 
       return ScanSourceResult(
         itemsFound: foundCount,
@@ -404,6 +411,8 @@ class MediaScanner {
                     ? null
                     : posterFile.lastModified,
               ),
+              hasAutoPoster: const Value(false),
+              autoPosterTimeMs: Value(existing?.autoPosterTimeMs),
               fanartRelativePath: Value(fanartFile?.relativePath),
               fanartUri: Value(fanartFile?.uri),
               fanartLastModified: Value(
@@ -510,6 +519,8 @@ class MediaScanner {
       posterRelativePath: Value(existing.posterRelativePath),
       posterUri: Value(existing.posterUri),
       posterLastModified: Value(existing.posterLastModified),
+      hasAutoPoster: Value(existing.hasAutoPoster),
+      autoPosterTimeMs: Value(existing.autoPosterTimeMs),
       fanartRelativePath: Value(existing.fanartRelativePath),
       fanartUri: Value(existing.fanartUri),
       fanartLastModified: Value(existing.fanartLastModified),
@@ -634,6 +645,87 @@ class MediaScanner {
 
     final row = await query.getSingle();
     return row.read(countExpression) ?? 0;
+  }
+
+  void _generateAutoPostersAsync(List<_ScannedMediaRecord> items) {
+    final autoPosterService = _autoPosterService;
+    if (autoPosterService == null) {
+      return;
+    }
+
+    final candidates = <_ScannedMediaRecord>[];
+    for (final item in items) {
+      final posterUri = item.companion.posterUri.value;
+      final hasPoster = posterUri != null && posterUri.trim().isNotEmpty;
+
+      if (!hasPoster) {
+        final primaryVideoUri = item.companion.primaryVideoUri.value;
+        if (primaryVideoUri != null && primaryVideoUri.trim().isNotEmpty) {
+          candidates.add(item);
+        }
+      }
+    }
+
+    if (candidates.isEmpty) {
+      return;
+    }
+
+    _runAutoPosterGenerationWithLimit(
+      candidates: candidates,
+      autoPosterService: autoPosterService,
+      maxConcurrent: 3,
+    );
+  }
+
+  Future<void> _runAutoPosterGenerationWithLimit({
+    required List<_ScannedMediaRecord> candidates,
+    required AutoPosterService autoPosterService,
+    required int maxConcurrent,
+  }) async {
+    final semaphore = _Semaphore(maxConcurrent);
+    await Future.wait(
+      candidates.map((item) async {
+        await semaphore.acquire();
+        try {
+          await autoPosterService.generateAutoPosterIfNeeded(
+            mediaId: item.id,
+            posterUri: item.companion.posterUri.value,
+            primaryVideoUri: item.companion.primaryVideoUri.value,
+            hasAutoPoster: false,
+            durationMs: item.companion.durationMs.value,
+          );
+        } finally {
+          semaphore.release();
+        }
+      }),
+    );
+  }
+}
+
+class _Semaphore {
+  _Semaphore(this._maxCount);
+
+  final int _maxCount;
+  int _currentCount = 0;
+  final _waitQueue = <Completer<void>>[];
+
+  Future<void> acquire() async {
+    if (_currentCount < _maxCount) {
+      _currentCount++;
+      return;
+    }
+    final completer = Completer<void>();
+    _waitQueue.add(completer);
+    await completer.future;
+  }
+
+  void release() {
+    if (_waitQueue.isNotEmpty) {
+      final completer = _waitQueue.removeAt(0);
+      completer.complete();
+    } else {
+      _currentCount--;
+    }
   }
 }
 

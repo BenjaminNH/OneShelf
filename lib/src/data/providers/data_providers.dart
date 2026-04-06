@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repositories/library_repository.dart';
 import '../../domain/repositories/media_sources_repository.dart';
 import '../../domain/repositories/settings_repository.dart';
+import '../../shared/debug/app_debug_logger.dart';
+import '../../shared/media/video_frame_extractor.dart';
 import '../database/app_database.dart';
 import '../document_tree/docman_document_tree_access.dart';
 import '../document_tree/document_tree_access.dart';
@@ -11,7 +13,7 @@ import '../repositories/media_sources_repository_impl.dart';
 import '../repositories/settings_repository_impl.dart';
 import '../scanning/media_scanner.dart';
 import '../scanning/nfo_parser.dart';
-import '../../shared/debug/app_debug_logger.dart';
+import '../services/auto_poster_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final database = AppDatabase();
@@ -27,12 +29,25 @@ final nfoParserProvider = Provider<NfoParser>((ref) {
   return NfoParser();
 });
 
+final videoFrameExtractorProvider = Provider<VideoFrameExtractor>((ref) {
+  return VideoFrameExtractor(ref.watch(appDebugLoggerProvider));
+});
+
+final autoPosterServiceProvider = Provider<AutoPosterService>((ref) {
+  return AutoPosterService(
+    database: ref.watch(appDatabaseProvider),
+    frameExtractor: ref.watch(videoFrameExtractorProvider),
+    debugLogger: ref.watch(appDebugLoggerProvider),
+  );
+});
+
 final mediaScannerProvider = Provider<MediaScanner>((ref) {
   return MediaScanner(
     database: ref.watch(appDatabaseProvider),
     documentTreeAccess: ref.watch(documentTreeAccessProvider),
     nfoParser: ref.watch(nfoParserProvider),
     debugLogger: ref.watch(appDebugLoggerProvider),
+    autoPosterService: ref.watch(autoPosterServiceProvider),
   );
 });
 
