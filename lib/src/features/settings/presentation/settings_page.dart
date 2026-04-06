@@ -183,9 +183,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text('Show playback progress'),
-                          subtitle: const Text(
-                            'Display progress bar on poster',
-                          ),
                           value: _draft.keepResumeHistory,
                           activeThumbColor: AppPalette.accent,
                           onChanged: (value) => _update(
