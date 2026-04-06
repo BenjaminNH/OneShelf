@@ -135,13 +135,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       final source = await ref.read(sourcesActionsProvider).addSource();
       if (source != null) {
         await ref.read(sourcesActionsProvider).rescanSource(source.id);
-        _showInfo('Media source added. First scan has started.');
       }
       return;
     }
 
     await ref.read(libraryActionsProvider).scanAllSources();
-    _showInfo('Library rescan completed.');
   }
 
   Future<void> _showSortMenu() async {
@@ -180,12 +178,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     if (selected != null) {
       ref.read(librarySortProvider.notifier).setSort(selected);
     }
-  }
-
-  void _showInfo(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
