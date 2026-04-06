@@ -39,10 +39,12 @@ jobs:
           mv build/app/outputs/flutter-apk/app-x86_64-release.apk OneShelf-${{ inputs.version }}-x86_64.apk
           mv build/app/outputs/flutter-apk/app-release.apk OneShelf-${{ inputs.version }}-universal.apk
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: release-apks
-          path: |
+          tag_name: ${{ inputs.version }}
+          name: OneShelf ${{ inputs.version }}
+          draft: true
+          generate_release_notes: true
+          files: |
             OneShelf-${{ inputs.version }}-*.apk
-          retention-days: 7
