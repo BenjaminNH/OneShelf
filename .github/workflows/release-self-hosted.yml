@@ -80,6 +80,24 @@ jobs:
             exit 1
           fi
 
+      - name: Inject release signing files
+        run: |
+          SECRET_ANDROID_DIR="$HOME/.config/oneshelf-runner/secrets/android"
+
+          if [ ! -f "$SECRET_ANDROID_DIR/key.properties" ]; then
+            echo "Missing $SECRET_ANDROID_DIR/key.properties"
+            exit 1
+          fi
+
+          if [ ! -f "$SECRET_ANDROID_DIR/oneshelf-release.jks" ]; then
+            echo "Missing $SECRET_ANDROID_DIR/oneshelf-release.jks"
+            exit 1
+          fi
+
+          mkdir -p android/app
+          cp "$SECRET_ANDROID_DIR/key.properties" android/key.properties
+          cp "$SECRET_ANDROID_DIR/oneshelf-release.jks" android/app/oneshelf-release.jks
+
       - name: Verify release signing prerequisites
         run: ./.ci-tools/scripts/verify-release-prereqs.sh
 
