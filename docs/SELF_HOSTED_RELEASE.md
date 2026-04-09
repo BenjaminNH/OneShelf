@@ -69,7 +69,7 @@ Use the new workflow:
 
 It expects:
 
-- a tag such as `v0.3.0`
+- a tag such as `v0.4.0`
 - a runner with label `release-self-hosted`
 
 ## Rollback

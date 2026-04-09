@@ -7,6 +7,24 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-09
+
+### Added
+- More resilient automatic poster generation for local videos, with extra frame extraction fallbacks and a system thumbnail fallback when direct frame capture fails.
+- Native video diagnostics in the exported debug log to help troubleshoot device-specific metadata and thumbnail extraction issues.
+- A self-hosted GitHub Actions release workflow for building signed Android APKs from a verified tag on a dedicated runner.
+- Release helper scripts for runner setup, local toolchain bootstrap, release prerequisite checks, and APK signature verification.
+
+### Changed
+- Reduced poster cache contention during scans by limiting concurrent poster materialization work.
+- Auto-poster and library watch flows now capture richer timing information to make scan-time performance easier to diagnose.
+- Self-hosted release automation now injects signing files, preinstalls required Android components, and resets native build caches before release builds.
+
+### Fixed
+- The Settings page now hides the QA-only update feed URL in release builds.
+- Self-hosted release checks now detect the workspace root correctly during prerequisite validation.
+- Self-hosted tag builds now validate the requested tag more reliably before packaging release APKs.
+
 ## [0.3.0] - 2026-04-09
 
 ### Added
@@ -67,7 +85,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Polished player gestures, detail actions, and route callback handling.
 - Refined library and search presentation, including header and label consistency.
 
-[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BenjaminNH/OneShelf/releases/tag/v0.1.0
