@@ -7,6 +7,22 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-09
+
+### Added
+- Automatic poster generation for videos without bundled artwork by extracting a representative frame and caching it locally.
+- In-app update support in Settings, including a local feed override for QA and release validation.
+- Manual GitHub Actions release workflow that builds from a verified tag and can create a draft GitHub release automatically.
+
+### Changed
+- The `Keep resume history` setting now also controls playback progress bar visibility on poster tiles.
+- Release automation now uses Flutter `3.41.4` and Node.js 24 compatible GitHub Actions versions.
+
+### Fixed
+- Removed debug snackbar notifications from the library home page for cleaner release builds.
+- Shortened settings option copy to fit better on smaller screens.
+- Stabilized settings-dependent widget tests to reduce false failures in CI.
+
 ## [0.2.0] - 2026-04-05
 
 ### Added
@@ -51,6 +67,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Polished player gestures, detail actions, and route callback handling.
 - Refined library and search presentation, including header and label consistency.
 
-[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/BenjaminNH/OneShelf/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BenjaminNH/OneShelf/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BenjaminNH/OneShelf/releases/tag/v0.1.0
