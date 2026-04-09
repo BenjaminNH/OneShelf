@@ -28,6 +28,14 @@ jobs:
             exit 1
           fi
 
+      - name: Verify app version matches tag
+        run: |
+          APP_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          if [ "v${APP_VERSION}" != "${{ inputs.tag }}" ]; then
+            echo "Error: pubspec version ${APP_VERSION} does not match tag ${{ inputs.tag }}"
+            exit 1
+          fi
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
