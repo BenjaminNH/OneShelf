@@ -26,6 +26,12 @@ jobs:
         with:
           ref: ${{ inputs.tag }}
 
+      - name: Checkout workflow tools
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          path: .ci-tools
+
       - name: Load local toolchain environment
         run: |
           if [ ! -f "$HOME/.config/oneshelf-runner/env.sh" ]; then
@@ -75,7 +81,7 @@ jobs:
           fi
 
       - name: Verify release signing prerequisites
-        run: ./scripts/verify-release-prereqs.sh
+        run: ./.ci-tools/scripts/verify-release-prereqs.sh
 
       - name: Get dependencies
         run: flutter pub get
@@ -86,7 +92,7 @@ jobs:
           flutter build apk --release
 
       - name: Verify APK signatures
-        run: ./scripts/verify-release-apks.sh build/app/outputs/flutter-apk
+        run: ./.ci-tools/scripts/verify-release-apks.sh build/app/outputs/flutter-apk
 
       - name: Rename APKs
         run: |
