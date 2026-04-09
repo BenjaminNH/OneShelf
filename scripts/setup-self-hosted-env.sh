@@ -12,7 +12,10 @@ ANDROID_CMDLINE_TOOLS_VERSION="14742923"
 ANDROID_CMDLINE_TOOLS_ZIP="commandlinetools-linux-${ANDROID_CMDLINE_TOOLS_VERSION}_latest.zip"
 ANDROID_CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/${ANDROID_CMDLINE_TOOLS_ZIP}"
 ANDROID_PLATFORM="android-36"
+ANDROID_EXTRA_PLATFORMS=("android-35" "android-34")
 ANDROID_BUILD_TOOLS="36.0.0"
+ANDROID_EXTRA_BUILD_TOOLS=("35.0.0")
+ANDROID_CMAKE_VERSION="3.22.1"
 ANDROID_NDK="28.2.13676358"
 
 HOME_DIR="${HOME}"
@@ -98,8 +101,17 @@ sdkmanager \
   "platform-tools" \
   "platforms;${ANDROID_PLATFORM}" \
   "build-tools;${ANDROID_BUILD_TOOLS}" \
+  "cmake;${ANDROID_CMAKE_VERSION}" \
   "ndk;${ANDROID_NDK}" \
   >/tmp/oneshelf-sdk-install.log
+
+for platform in "${ANDROID_EXTRA_PLATFORMS[@]}"; do
+  sdkmanager "platforms;${platform}" >>/tmp/oneshelf-sdk-install.log
+done
+
+for build_tools in "${ANDROID_EXTRA_BUILD_TOOLS[@]}"; do
+  sdkmanager "build-tools;${build_tools}" >>/tmp/oneshelf-sdk-install.log
+done
 
 flutter config --no-analytics >/tmp/oneshelf-flutter-config.log
 flutter precache --android >/tmp/oneshelf-flutter-precache.log
