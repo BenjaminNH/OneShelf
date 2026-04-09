@@ -27,7 +27,7 @@ void main() {
     await database.close();
   });
 
-  Future<void> _insertTestSource(AppDatabase db) async {
+  Future<void> insertTestSource(AppDatabase db) async {
     final now = DateTime.now();
     await db
         .into(db.mediaSourcesTable)
@@ -51,7 +51,7 @@ void main() {
       'getItemsNeedingMetadata returns items with missing durationMs',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -108,7 +108,7 @@ void main() {
       'getItemsNeedingMetadata returns items with missing width or height',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -146,7 +146,7 @@ void main() {
       'getItemsNeedingMetadata excludes items without primaryVideoUri',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -183,7 +183,7 @@ void main() {
       'prefillMissingMetadata updates database with fetched metadata',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -244,7 +244,7 @@ void main() {
       'prefillMissingMetadata processes multiple items sequentially',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -335,7 +335,7 @@ void main() {
       'prefillMissingMetadata handles reader returning null gracefully',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -390,7 +390,7 @@ void main() {
       'prefillMissingMetadata skips items already having all metadata',
       () async {
         final now = DateTime.now();
-        await _insertTestSource(database);
+        await insertTestSource(database);
 
         await database
             .into(database.mediaItemsTable)
@@ -434,7 +434,7 @@ void main() {
     test('prefillMissingMetadata does NOT modify updatedAt field', () async {
       final now = DateTime.now();
       final originalUpdatedAt = DateTime(2026, 1, 1, 12, 0, 0);
-      await _insertTestSource(database);
+      await insertTestSource(database);
 
       await database
           .into(database.mediaItemsTable)

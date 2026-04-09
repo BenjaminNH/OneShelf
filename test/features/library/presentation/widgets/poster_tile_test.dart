@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:one_shelf/src/domain/entities/app_settings.dart';
 import 'package:one_shelf/src/domain/entities/media_entry.dart';
 import 'package:one_shelf/src/domain/entities/media_item.dart';
 import 'package:one_shelf/src/features/library/presentation/widgets/poster_tile.dart';
+import 'package:one_shelf/src/features/settings/application/settings_providers.dart';
 
 void main() {
   testWidgets('poster tile shows parsed title as the only label', (
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PosterTile(
-            entry: _entry(title: 'Movie Title', fileName: 'Movie Name.mp4'),
+      ProviderScope(
+        overrides: [
+          appSettingsProvider.overrideWith(
+            (ref) => Stream.value(const AppSettings()),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: PosterTile(
+              entry: _entry(title: 'Movie Title', fileName: 'Movie Name.mp4'),
+            ),
           ),
         ),
       ),
@@ -26,10 +36,17 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PosterTile(
-            entry: _entry(title: '', fileName: 'ABP-123.mp4'),
+      ProviderScope(
+        overrides: [
+          appSettingsProvider.overrideWith(
+            (ref) => Stream.value(const AppSettings()),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: PosterTile(
+              entry: _entry(title: '', fileName: 'ABP-123.mp4'),
+            ),
           ),
         ),
       ),

@@ -131,28 +131,6 @@ class LibraryActions {
       statusNotifier.error(e.toString());
     }
   }
-
-  Future<void> _triggerMetadataPrefill() async {
-    final service = _ref.read(metadataPrefillServiceProvider);
-    final statusNotifier = _ref.read(metadataPrefillStatusProvider.notifier);
-
-    if (_ref.read(metadataPrefillStatusProvider).isRunning) {
-      return;
-    }
-
-    final items = await service.getItemsNeedingMetadata();
-    if (items.isEmpty) {
-      return;
-    }
-
-    statusNotifier.start(items.length);
-    try {
-      final updated = await service.prefillMissingMetadata();
-      statusNotifier.complete(updated);
-    } catch (e) {
-      statusNotifier.error(e.toString());
-    }
-  }
 }
 
 class LibrarySortNotifier extends Notifier<MediaSort> {
