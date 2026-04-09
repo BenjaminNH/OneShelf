@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:docman/docman.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 import '../data/providers/data_providers.dart';
@@ -23,6 +29,17 @@ import '../core/navigation/app_routes.dart';
 import '../shared/debug/app_debug_logger.dart';
 import '../shared/media/local_video_metadata.dart';
 import '../shared/media/media_asset_resolver.dart';
+
+const _githubOwner = 'BenjaminNH';
+const _githubRepo = 'OneShelf';
+const _githubRepositoryUrl = 'https://github.com/$_githubOwner/$_githubRepo';
+const _githubReleasesUrl = '$_githubRepositoryUrl/releases';
+const _githubLatestReleaseApi =
+    'https://api.github.com/repos/$_githubOwner/$_githubRepo/releases/latest';
+const _updateApiOverride = String.fromEnvironment(
+  'ONESHELF_UPDATE_API',
+  defaultValue: '',
+);
 
 class DetailRoutePage extends ConsumerStatefulWidget {
   const DetailRoutePage({required this.mediaId, super.key});
@@ -221,11 +238,28 @@ class _DetailRoutePageState extends ConsumerState<DetailRoutePage> {
   }
 }
 
-class SettingsRoutePage extends ConsumerWidget {
+class SettingsRoutePage extends ConsumerStatefulWidget {
   const SettingsRoutePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsRoutePage> createState() => _SettingsRoutePageState();
+}
+
+class _SettingsRoutePageState extends ConsumerState<SettingsRoutePage> {
+  late final Future<PackageInfo> _packageInfoFuture;
+  var _checkingUpdate = false;
+  var _updateStatusLabel = _updateApiOverride.trim().isNotEmpty
+      ? 'Using local update feed.'
+      : 'Checks GitHub releases for new builds.';
+
+  @override
+  void initState() {
+    super.initState();
+    _packageInfoFuture = PackageInfo.fromPlatform();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final libraryActions = ref.read(libraryActionsProvider);
     final settingsActions = ref.read(settingsActionsProvider);
     final backupActions = ref.read(backupActionsProvider);
@@ -250,95 +284,542 @@ class SettingsRoutePage extends ConsumerWidget {
             .where((source) => source.permissionStatus.name == 'lost')
             .length;
 
-        return SettingsPage(
-          settings: settings,
-          latestScanReport: latestReport,
-          posterCacheSizeLabel: 'Managed by app cache',
-          permissionHealthLabel: lostCount == 0
-              ? 'Healthy'
-              : '$lostCount source(s) need attention',
-          showProfileLogging: showProfileLogging,
-          debugLogPathLabel: debugLogPathAsync.asData?.value,
-          onManageSources: () {
-            Navigator.of(context).pushNamed(AppRoutes.sources);
-          },
-          onRescanAll: () async {
-            final report = await libraryActions.scanAllSources();
-            lastScanReportNotifier.setReport(report);
-            if (context.mounted) {
-              _showMessage(
-                context,
-                report.hasError
-                    ? 'Scan finished with issues: ${report.errorMessage}'
-                    : 'Scan finished: ${report.itemsFound} items found.',
-              );
-            }
-          },
-          onSave: (nextSettings) {
-            unawaited(settingsActions.save(nextSettings));
-          },
-          onClearCache: () async {
-            await settingsActions.clearImageCache();
-            if (context.mounted) {
-              _showMessage(context, 'Image cache cleared.');
-            }
-          },
-          onRebuildLibrary: () async {
-            await libraryActions.rebuildLibrary();
-            if (context.mounted) {
-              _showMessage(context, 'Library rebuilt from local sources.');
-            }
-          },
-          onShareDebugLog: showProfileLogging
-              ? () async {
-                  final shared = await settingsActions.shareDebugLog();
-                  if (context.mounted) {
-                    _showMessage(
-                      context,
-                      shared
-                          ? 'Profile log ready to share.'
-                          : 'Profile log is not available yet.',
-                    );
-                  }
+        return FutureBuilder<PackageInfo>(
+          future: _packageInfoFuture,
+          builder: (context, packageSnapshot) {
+            final packageInfo = packageSnapshot.data;
+            return SettingsPage(
+              settings: settings,
+              latestScanReport: latestReport,
+              appVersionLabel: _buildVersionLabel(packageInfo),
+              updateFeedUrlLabel: _effectiveUpdateFeedApi(),
+              updateStatusLabel: _checkingUpdate
+                  ? 'Checking GitHub releases...'
+                  : _updateStatusLabel,
+              posterCacheSizeLabel: 'Managed by app cache',
+              permissionHealthLabel: lostCount == 0
+                  ? 'Healthy'
+                  : '$lostCount source(s) need attention',
+              showProfileLogging: showProfileLogging,
+              debugLogPathLabel: debugLogPathAsync.asData?.value,
+              onManageSources: () {
+                Navigator.of(context).pushNamed(AppRoutes.sources);
+              },
+              onRescanAll: () async {
+                final report = await libraryActions.scanAllSources();
+                lastScanReportNotifier.setReport(report);
+                if (context.mounted) {
+                  _showMessage(
+                    context,
+                    report.hasError
+                        ? 'Scan finished with issues: ${report.errorMessage}'
+                        : 'Scan finished: ${report.itemsFound} items found.',
+                  );
                 }
-              : null,
-          onClearDebugLog: showProfileLogging
-              ? () async {
-                  await settingsActions.clearDebugLog();
-                  ref.invalidate(debugLogPathProvider);
-                  if (context.mounted) {
-                    _showMessage(context, 'Profile log cleared.');
-                  }
+              },
+              onSave: (nextSettings) {
+                unawaited(settingsActions.save(nextSettings));
+              },
+              onClearCache: () async {
+                await settingsActions.clearImageCache();
+                if (context.mounted) {
+                  _showMessage(context, 'Image cache cleared.');
                 }
-              : null,
-          onExportBackup: () async {
-            final result = await backupActions.export();
-            if (context.mounted) {
-              _showMessage(
-                context,
-                result.success
-                    ? 'Backup saved to Download/OneShelf (${result.recordCount} records)'
-                    : 'Export failed: ${result.error}',
-              );
-            }
-          },
-          onImportBackup: () async {
-            final filePath = await backupActions.pickBackupFile();
-            if (filePath == null) return;
-            final result = await backupActions.import(filePath);
-            if (context.mounted) {
-              _showMessage(
-                context,
-                result.success
-                    ? 'Restored: ${result.exactMatchCount} exact, ${result.fuzzyMatchCount} fuzzy, ${result.skippedCount} skipped'
-                    : 'Import failed: ${result.error}',
-              );
-            }
+              },
+              onRebuildLibrary: () async {
+                await libraryActions.rebuildLibrary();
+                if (context.mounted) {
+                  _showMessage(context, 'Library rebuilt from local sources.');
+                }
+              },
+              onShareDebugLog: showProfileLogging
+                  ? () async {
+                      final shared = await settingsActions.shareDebugLog();
+                      if (context.mounted) {
+                        _showMessage(
+                          context,
+                          shared
+                              ? 'Profile log ready to share.'
+                              : 'Profile log is not available yet.',
+                        );
+                      }
+                    }
+                  : null,
+              onClearDebugLog: showProfileLogging
+                  ? () async {
+                      await settingsActions.clearDebugLog();
+                      ref.invalidate(debugLogPathProvider);
+                      if (context.mounted) {
+                        _showMessage(context, 'Profile log cleared.');
+                      }
+                    }
+                  : null,
+              onExportBackup: () async {
+                final result = await backupActions.export();
+                if (context.mounted) {
+                  _showMessage(
+                    context,
+                    result.success
+                        ? 'Backup saved to Download/OneShelf (${result.recordCount} records)'
+                        : 'Export failed: ${result.error}',
+                  );
+                }
+              },
+              onImportBackup: () async {
+                final filePath = await backupActions.pickBackupFile();
+                if (filePath == null) return;
+                final result = await backupActions.import(filePath);
+                if (context.mounted) {
+                  _showMessage(
+                    context,
+                    result.success
+                        ? 'Restored: ${result.exactMatchCount} exact, ${result.fuzzyMatchCount} fuzzy, ${result.skippedCount} skipped'
+                        : 'Import failed: ${result.error}',
+                  );
+                }
+              },
+              onCheckUpdate: () {
+                unawaited(_checkForGithubUpdate(packageInfo));
+              },
+              onOpenGithub: () {
+                unawaited(_openGithubRepository());
+              },
+            );
           },
         );
       },
     );
   }
+
+  String _buildVersionLabel(PackageInfo? packageInfo) {
+    if (packageInfo == null) {
+      return 'Unknown';
+    }
+    final version = packageInfo.version.trim();
+    final buildNumber = packageInfo.buildNumber.trim();
+    if (version.isEmpty) {
+      return 'Unknown';
+    }
+    if (buildNumber.isEmpty) {
+      return 'v$version';
+    }
+    return 'v$version+$buildNumber';
+  }
+
+  Future<void> _checkForGithubUpdate(PackageInfo? packageInfo) async {
+    if (_checkingUpdate) {
+      return;
+    }
+    setState(() {
+      _checkingUpdate = true;
+    });
+    try {
+      final release = await _fetchLatestGithubRelease();
+      final latestTag = release.tagName?.trim().isNotEmpty == true
+          ? release.tagName!.trim()
+          : (release.name?.trim().isNotEmpty == true
+                ? release.name!.trim()
+                : 'latest release');
+      final comparison = _compareFlutterVersion(
+        latestTag: latestTag,
+        currentVersion: packageInfo?.version,
+        currentBuildNumber: packageInfo?.buildNumber,
+      );
+
+      if (comparison != null && comparison > 0) {
+        setState(() {
+          _updateStatusLabel = 'New version available: $latestTag';
+        });
+        if (!Platform.isAndroid) {
+          if (mounted) {
+            _showMessage(
+              context,
+              'Update found: $latestTag. Automatic install is Android-only.',
+            );
+          }
+          final targetUrl = release.htmlUrl ?? _githubReleasesUrl;
+          await _openExternalUrl(
+            Uri.parse(targetUrl),
+            errorMessage: 'Unable to open release page.',
+          );
+          return;
+        }
+        final apkUrl = release.apkUrl;
+        if (apkUrl == null || apkUrl.isEmpty) {
+          if (mounted) {
+            _showMessage(
+              context,
+              'Update found: $latestTag, but no APK asset was found on GitHub.',
+            );
+          }
+          final targetUrl = release.htmlUrl ?? _githubReleasesUrl;
+          await _openExternalUrl(
+            Uri.parse(targetUrl),
+            errorMessage: 'Unable to open release page.',
+          );
+          return;
+        }
+        await _downloadAndInstallUpdate(apkUrl: apkUrl, releaseTag: latestTag);
+        return;
+      }
+
+      if (comparison != null && comparison <= 0) {
+        setState(() {
+          _updateStatusLabel = 'Already up to date.';
+        });
+        if (mounted) {
+          _showMessage(context, 'You are already on the latest version.');
+        }
+        return;
+      }
+
+      setState(() {
+        _updateStatusLabel = 'Latest release: $latestTag';
+      });
+      if (mounted) {
+        _showMessage(context, 'Opened latest release details.');
+      }
+      final targetUrl = release.htmlUrl ?? _githubReleasesUrl;
+      await _openExternalUrl(
+        Uri.parse(targetUrl),
+        errorMessage: 'Unable to open release page.',
+      );
+    } catch (error) {
+      if (mounted) {
+        _showMessage(context, 'Update check failed: $error');
+      }
+      setState(() {
+        _updateStatusLabel = 'Update check failed. Tap to retry.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingUpdate = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _openGithubRepository() async {
+    await _openExternalUrl(
+      Uri.parse(_githubRepositoryUrl),
+      errorMessage: 'Unable to open GitHub repository.',
+    );
+  }
+
+  Future<void> _downloadAndInstallUpdate({
+    required String apkUrl,
+    required String releaseTag,
+  }) async {
+    if (mounted) {
+      setState(() {
+        _updateStatusLabel = 'Downloading update...';
+      });
+      _showMessage(context, 'Downloading update $releaseTag...');
+    }
+    final apkFile = await _downloadApkFile(
+      apkUrl: apkUrl,
+      releaseTag: releaseTag,
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _updateStatusLabel = 'Download complete. Opening installer...';
+    });
+    final result = await OpenFilex.open(
+      apkFile.path,
+      type: 'application/vnd.android.package-archive',
+    );
+    if (result.type != ResultType.done) {
+      final normalizedMessage = result.message.trim();
+      final suffix = normalizedMessage.isEmpty
+          ? result.type.name
+          : normalizedMessage;
+      throw StateError('Installer launch failed: $suffix');
+    }
+    if (mounted) {
+      setState(() {
+        _updateStatusLabel = 'Installer opened for $releaseTag.';
+      });
+      _showMessage(context, 'Installer opened. Continue in Android installer.');
+    }
+  }
+
+  Future<File> _downloadApkFile({
+    required String apkUrl,
+    required String releaseTag,
+  }) async {
+    final uri = Uri.parse(apkUrl);
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(uri);
+      request.headers.set(HttpHeaders.userAgentHeader, 'OneShelf-Updater');
+      final response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        throw StateError('APK download failed with ${response.statusCode}');
+      }
+      final cacheDir = await getTemporaryDirectory();
+      final updateDir = Directory(
+        '${cacheDir.path}${Platform.pathSeparator}updates',
+      );
+      if (!await updateDir.exists()) {
+        await updateDir.create(recursive: true);
+      }
+      final targetFile = File(
+        '${updateDir.path}${Platform.pathSeparator}${_apkFileName(uri, releaseTag)}',
+      );
+      if (await targetFile.exists()) {
+        await targetFile.delete();
+      }
+      final sink = targetFile.openWrite();
+      final totalBytes = response.contentLength;
+      var receivedBytes = 0;
+      var lastPercent = -1;
+      try {
+        await for (final chunk in response) {
+          receivedBytes += chunk.length;
+          sink.add(chunk);
+          if (!mounted || totalBytes <= 0) {
+            continue;
+          }
+          final percent = ((receivedBytes / totalBytes) * 100).round().clamp(
+            0,
+            100,
+          );
+          if (percent == 100 || percent >= lastPercent + 5) {
+            lastPercent = percent;
+            setState(() {
+              _updateStatusLabel = 'Downloading update... $percent%';
+            });
+          }
+        }
+      } finally {
+        await sink.flush();
+        await sink.close();
+      }
+      final size = await targetFile.length();
+      if (size <= 0) {
+        throw const FormatException('Downloaded APK is empty.');
+      }
+      return targetFile;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  String _apkFileName(Uri apkUri, String releaseTag) {
+    final sourceName = apkUri.pathSegments.isEmpty
+        ? ''
+        : apkUri.pathSegments.last;
+    if (sourceName.toLowerCase().endsWith('.apk')) {
+      return sourceName;
+    }
+    final sanitizedTag = releaseTag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '_');
+    return 'oneshelf-$sanitizedTag.apk';
+  }
+
+  Future<void> _openExternalUrl(Uri uri, {required String errorMessage}) async {
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      _showMessage(context, errorMessage);
+    }
+  }
+
+  Future<_GithubReleaseInfo> _fetchLatestGithubRelease() async {
+    final feedUrl = _effectiveUpdateFeedApi();
+    final feedUri = Uri.parse(feedUrl);
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(feedUri);
+      if (feedUri.host == 'api.github.com') {
+        request.headers.set(
+          HttpHeaders.acceptHeader,
+          'application/vnd.github+json',
+        );
+      }
+      request.headers.set(
+        HttpHeaders.userAgentHeader,
+        'OneShelf-UpdateChecker',
+      );
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+      if (response.statusCode != HttpStatus.ok) {
+        throw StateError('Update feed returned ${response.statusCode}');
+      }
+      final parsed = jsonDecode(body);
+      if (parsed is! Map<String, dynamic>) {
+        throw const FormatException('Unexpected release payload.');
+      }
+      return _GithubReleaseInfo.fromJson(parsed, baseUri: feedUri);
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  String _effectiveUpdateFeedApi() {
+    final override = _updateApiOverride.trim();
+    if (override.isNotEmpty) {
+      return override;
+    }
+    return _githubLatestReleaseApi;
+  }
+}
+
+class _GithubReleaseInfo {
+  const _GithubReleaseInfo({
+    required this.tagName,
+    required this.name,
+    required this.htmlUrl,
+    required this.apkUrl,
+  });
+
+  final String? tagName;
+  final String? name;
+  final String? htmlUrl;
+  final String? apkUrl;
+
+  factory _GithubReleaseInfo.fromJson(
+    Map<String, dynamic> json, {
+    required Uri baseUri,
+  }) {
+    final tagName =
+        json['tag_name'] as String? ??
+        json['version'] as String? ??
+        json['latestVersion'] as String? ??
+        json['latestVersionName'] as String?;
+    final name = json['name'] as String? ?? json['title'] as String?;
+    final htmlUrl = _resolveUrl(
+      json['html_url'] as String? ??
+          json['releaseUrl'] as String? ??
+          json['pageUrl'] as String?,
+      baseUri,
+    );
+    final directApkUrl = _resolveUrl(
+      json['apkUrl'] as String? ?? json['downloadUrl'] as String?,
+      baseUri,
+    );
+
+    final assets = json['assets'];
+    String? apkUrl;
+    if (directApkUrl != null) {
+      apkUrl = directApkUrl;
+    }
+    if (assets is List) {
+      for (final asset in assets) {
+        if (asset is! Map<String, dynamic>) {
+          continue;
+        }
+        final assetName = (asset['name'] as String?)?.toLowerCase() ?? '';
+        final downloadUrl = _resolveUrl(
+          asset['browser_download_url'] as String? ?? asset['url'] as String?,
+          baseUri,
+        );
+        if (downloadUrl == null || downloadUrl.isEmpty) {
+          continue;
+        }
+        if (assetName.endsWith('.apk')) {
+          apkUrl = downloadUrl;
+          break;
+        }
+      }
+    }
+    return _GithubReleaseInfo(
+      tagName: tagName,
+      name: name,
+      htmlUrl: htmlUrl,
+      apkUrl: apkUrl,
+    );
+  }
+}
+
+String? _resolveUrl(String? raw, Uri baseUri) {
+  final candidate = raw?.trim();
+  if (candidate == null || candidate.isEmpty) {
+    return null;
+  }
+  final parsed = Uri.tryParse(candidate);
+  if (parsed == null) {
+    return null;
+  }
+  if (parsed.hasScheme) {
+    return parsed.toString();
+  }
+  return baseUri.resolveUri(parsed).toString();
+}
+
+int? _compareFlutterVersion({
+  required String latestTag,
+  required String? currentVersion,
+  required String? currentBuildNumber,
+}) {
+  if (currentVersion == null || currentVersion.trim().isEmpty) {
+    return null;
+  }
+  final latest = _parseFlutterVersion(latestTag);
+  final current = _parseFlutterVersion(
+    currentVersion,
+    fallbackBuildNumber: currentBuildNumber,
+  );
+  if (latest == null || current == null) {
+    return null;
+  }
+  final maxLength = latest.core.length > current.core.length
+      ? latest.core.length
+      : current.core.length;
+  for (var index = 0; index < maxLength; index++) {
+    final latestPart = index < latest.core.length ? latest.core[index] : 0;
+    final currentPart = index < current.core.length ? current.core[index] : 0;
+    if (latestPart != currentPart) {
+      return latestPart.compareTo(currentPart);
+    }
+  }
+  return latest.build.compareTo(current.build);
+}
+
+_ParsedFlutterVersion? _parseFlutterVersion(
+  String raw, {
+  String? fallbackBuildNumber,
+}) {
+  var value = raw.trim();
+  if (value.isEmpty) {
+    return null;
+  }
+  value = value.replaceFirst(RegExp(r'^[vV]'), '');
+  var build = 0;
+
+  if (value.contains('+')) {
+    final sections = value.split('+');
+    value = sections.first;
+    if (sections.length > 1) {
+      build = int.tryParse(sections[1].split('-').first) ?? 0;
+    }
+  } else {
+    build = int.tryParse(fallbackBuildNumber?.trim() ?? '') ?? 0;
+  }
+
+  value = value.split('-').first;
+  final numbers = RegExp(r'\d+(?:\.\d+)*').firstMatch(value)?.group(0);
+  if (numbers == null || numbers.isEmpty) {
+    return null;
+  }
+  final parts = numbers.split('.');
+  final core = <int>[];
+  for (final part in parts) {
+    final parsed = int.tryParse(part);
+    if (parsed == null) {
+      return null;
+    }
+    core.add(parsed);
+  }
+  return _ParsedFlutterVersion(core: core, build: build);
+}
+
+class _ParsedFlutterVersion {
+  const _ParsedFlutterVersion({required this.core, required this.build});
+
+  final List<int> core;
+  final int build;
 }
 
 class MediaSourcesRoutePage extends ConsumerWidget {

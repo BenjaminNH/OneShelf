@@ -22,6 +22,11 @@ class SettingsPage extends StatefulWidget {
     this.showProfileLogging = true,
     this.onExportBackup,
     this.onImportBackup,
+    this.onCheckUpdate,
+    this.onOpenGithub,
+    this.appVersionLabel,
+    this.updateStatusLabel,
+    this.updateFeedUrlLabel,
   });
 
   final AppSettings settings;
@@ -39,6 +44,11 @@ class SettingsPage extends StatefulWidget {
   final bool showProfileLogging;
   final VoidCallback? onExportBackup;
   final VoidCallback? onImportBackup;
+  final VoidCallback? onCheckUpdate;
+  final VoidCallback? onOpenGithub;
+  final String? appVersionLabel;
+  final String? updateStatusLabel;
+  final String? updateFeedUrlLabel;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -238,25 +248,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 12),
                 _GlassCard(
                   child: _SectionColumn(
-                    title: 'Cache & permissions',
-                    subtitle:
-                        'Poster cache ${widget.posterCacheSizeLabel ?? 'Unknown'} · Permissions ${widget.permissionHealthLabel ?? 'Unknown'}',
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: widget.onClearCache,
-                            icon: const Icon(Icons.cleaning_services_rounded),
-                            label: const Text('Clear cache'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _GlassCard(
-                  child: _SectionColumn(
                     title: 'Backup & restore',
                     subtitle:
                         'Export your ratings and playback progress to a JSON file. Import to restore after clearing data.',
@@ -278,6 +269,58 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _GlassCard(
+                  child: _SectionColumn(
+                    title: 'App updates & about',
+                    subtitle:
+                        'Current version ${widget.appVersionLabel ?? 'Unknown'} · ${widget.updateStatusLabel ?? 'Checks GitHub releases for new builds.'}',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        FilledButton.tonalIcon(
+                          onPressed: widget.onCheckUpdate,
+                          icon: const Icon(Icons.system_update_alt_rounded),
+                          label: const Text('Check updates'),
+                        ),
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: widget.onOpenGithub,
+                          icon: const Icon(Icons.open_in_new_rounded),
+                          label: const Text('About GitHub'),
+                        ),
+                        if (widget.updateFeedUrlLabel != null) ...[
+                          const SizedBox(height: 10),
+                          SelectableText(
+                            'Feed: ${widget.updateFeedUrlLabel}',
+                            maxLines: 2,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: AppPalette.textMuted,
+                                  height: 1.3,
+                                ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _GlassCard(
+                  child: _SectionColumn(
+                    title: 'Maintenance',
+                    subtitle:
+                        'Poster cache ${widget.posterCacheSizeLabel ?? 'Unknown'} · Permissions ${widget.permissionHealthLabel ?? 'Unknown'}',
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: OutlinedButton.icon(
+                        onPressed: widget.onClearCache,
+                        icon: const Icon(Icons.cleaning_services_rounded),
+                        label: const Text('Clear image cache'),
+                      ),
                     ),
                   ),
                 ),
