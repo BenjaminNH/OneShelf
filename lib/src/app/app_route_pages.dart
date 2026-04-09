@@ -41,6 +41,16 @@ const _updateApiOverride = String.fromEnvironment(
   defaultValue: '',
 );
 
+String? buildSettingsUpdateFeedUrlLabel({
+  required bool showDebugFeedUrl,
+  required String effectiveUpdateFeedApi,
+}) {
+  if (!showDebugFeedUrl) {
+    return null;
+  }
+  return effectiveUpdateFeedApi;
+}
+
 class DetailRoutePage extends ConsumerStatefulWidget {
   const DetailRoutePage({required this.mediaId, super.key});
 
@@ -270,6 +280,7 @@ class _SettingsRoutePageState extends ConsumerState<SettingsRoutePage> {
     final sourcesAsync = ref.watch(mediaSourcesProvider);
     final latestReport = ref.watch(sourceLastScanReportProvider);
     final showProfileLogging = !kReleaseMode;
+    final showDebugUpdateFeed = kDebugMode;
     final debugLogPathAsync = showProfileLogging
         ? ref.watch(debugLogPathProvider)
         : const AsyncValue<String?>.data(null);
@@ -292,7 +303,10 @@ class _SettingsRoutePageState extends ConsumerState<SettingsRoutePage> {
               settings: settings,
               latestScanReport: latestReport,
               appVersionLabel: _buildVersionLabel(packageInfo),
-              updateFeedUrlLabel: _effectiveUpdateFeedApi(),
+              updateFeedUrlLabel: buildSettingsUpdateFeedUrlLabel(
+                showDebugFeedUrl: showDebugUpdateFeed,
+                effectiveUpdateFeedApi: _effectiveUpdateFeedApi(),
+              ),
               updateStatusLabel: _checkingUpdate
                   ? 'Checking GitHub releases...'
                   : _updateStatusLabel,
