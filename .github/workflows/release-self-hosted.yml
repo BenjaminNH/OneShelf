@@ -104,6 +104,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Reset native build caches
+        run: |
+          rm -rf android/.cxx
+          rm -rf build
+          rm -rf "$HOME/.pub-cache/hosted/pub.dev/jni-1.0.0/android/.cxx"
+
       - name: Build APKs
         run: |
           flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --split-per-abi
