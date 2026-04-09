@@ -1,0 +1,106 @@
+name: Build Release APK (Self-Hosted)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build (e.g., v0.3.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - release-self-hosted
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Load local toolchain environment
+        run: |
+          if [ ! -f "$HOME/.config/oneshelf-runner/env.sh" ]; then
+            echo "Missing $HOME/.config/oneshelf-runner/env.sh"
+            exit 1
+          fi
+
+          . "$HOME/.config/oneshelf-runner/env.sh"
+
+          echo "JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
+          echo "FLUTTER_HOME=$FLUTTER_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+
+          echo "$JAVA_HOME/bin" >> "$GITHUB_PATH"
+          echo "$FLUTTER_HOME/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Verify tag exists
+        run: |
+          git fetch --tags
+          if ! git tag -l | grep -q "^${{ inputs.tag }}$"; then
+            echo "Error: Tag ${{ inputs.tag }} does not exist"
+            exit 1
+          fi
+
+      - name: Verify app version matches tag
+        run: |
+          APP_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          if [ "v${APP_VERSION}" != "${{ inputs.tag }}" ]; then
+            echo "Error: pubspec version ${APP_VERSION} does not match tag ${{ inputs.tag }}"
+            exit 1
+          fi
+
+      - name: Verify local toolchain
+        run: |
+          java -version
+          flutter --version
+          if [ -n "${ANDROID_SDK_ROOT:-}" ]; then
+            "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --version
+          elif [ -n "${ANDROID_HOME:-}" ]; then
+            "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --version
+          else
+            echo "ANDROID_SDK_ROOT or ANDROID_HOME is not set"
+            exit 1
+          fi
+
+      - name: Verify release signing prerequisites
+        run: ./scripts/verify-release-prereqs.sh
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APKs
+        run: |
+          flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+          flutter build apk --release
+
+      - name: Verify APK signatures
+        run: ./scripts/verify-release-apks.sh build/app/outputs/flutter-apk
+
+      - name: Rename APKs
+        run: |
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk OneShelf-${{ inputs.tag }}-armeabi-v7a.apk
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk OneShelf-${{ inputs.tag }}-arm64-v8a.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk OneShelf-${{ inputs.tag }}-x86_64.apk
+          mv build/app/outputs/flutter-apk/app-release.apk OneShelf-${{ inputs.tag }}-universal.apk
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2.6.1
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: OneShelf ${{ inputs.tag }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            OneShelf-${{ inputs.tag }}-*.apk
