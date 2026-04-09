@@ -25,3 +25,6 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Local temporary files
+/tmp/
