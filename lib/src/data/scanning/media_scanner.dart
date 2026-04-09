@@ -667,8 +667,26 @@ class MediaScanner {
     }
 
     if (candidates.isEmpty) {
+      unawaited(
+        _debugLogger.log(
+          scope: 'auto_poster',
+          event: 'queue_skipped',
+          fields: const <String, Object?>{'reason': 'no_candidates'},
+        ),
+      );
       return;
     }
+
+    unawaited(
+      _debugLogger.log(
+        scope: 'auto_poster',
+        event: 'queue_scheduled',
+        fields: <String, Object?>{
+          'candidateCount': candidates.length,
+          'maxConcurrent': 3,
+        },
+      ),
+    );
 
     _runAutoPosterGenerationWithLimit(
       candidates: candidates,
@@ -682,22 +700,53 @@ class MediaScanner {
     required AutoPosterService autoPosterService,
     required int maxConcurrent,
   }) async {
+    final stopwatch = Stopwatch()..start();
     final semaphore = _Semaphore(maxConcurrent);
+    var generatedCount = 0;
+    var failedCount = 0;
+
     await Future.wait(
       candidates.map((item) async {
         await semaphore.acquire();
+        final itemStopwatch = Stopwatch()..start();
         try {
-          await autoPosterService.generateAutoPosterIfNeeded(
+          final generated = await autoPosterService.generateAutoPosterIfNeeded(
             mediaId: item.id,
             posterUri: item.companion.posterUri.value,
             primaryVideoUri: item.companion.primaryVideoUri.value,
             hasAutoPoster: false,
             durationMs: item.companion.durationMs.value,
           );
+          if (generated) {
+            generatedCount++;
+          } else {
+            failedCount++;
+          }
+          await _debugLogger.log(
+            scope: 'auto_poster',
+            event: 'queue_item_finished',
+            fields: <String, Object?>{
+              'mediaId': item.id,
+              'generated': generated,
+              'elapsedMs': itemStopwatch.elapsedMilliseconds,
+            },
+          );
         } finally {
           semaphore.release();
         }
       }),
+    );
+
+    await _debugLogger.log(
+      scope: 'auto_poster',
+      event: 'queue_completed',
+      fields: <String, Object?>{
+        'candidateCount': candidates.length,
+        'generatedCount': generatedCount,
+        'failedCount': failedCount,
+        'maxConcurrent': maxConcurrent,
+        'elapsedMs': stopwatch.elapsedMilliseconds,
+      },
     );
   }
 }

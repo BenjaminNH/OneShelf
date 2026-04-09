@@ -29,7 +29,26 @@ class LibraryRepositoryImpl implements LibraryRepository {
     MediaSort sort = MediaSort.recentlyAdded,
   }) {
     final query = _libraryJoin(sort: sort);
-    return query.watch().map(_mapJoinRows);
+    final stopwatch = Stopwatch()..start();
+    return query.watch().map((rows) {
+      final elapsedMs = stopwatch.elapsedMilliseconds;
+      stopwatch
+        ..reset()
+        ..start();
+      unawaited(
+        _debugLogger?.log(
+          scope: 'library',
+          event: 'watch_emit',
+          fields: <String, Object?>{
+            'stream': 'library',
+            'sort': sort.name,
+            'rowCount': rows.length,
+            'elapsedMs': elapsedMs,
+          },
+        ),
+      );
+      return _mapJoinRows(rows);
+    });
   }
 
   @override
@@ -39,7 +58,26 @@ class LibraryRepositoryImpl implements LibraryRepository {
       limit: 12,
       onlyRecent: true,
     );
-    return query.watch().map(_mapJoinRows);
+    final stopwatch = Stopwatch()..start();
+    return query.watch().map((rows) {
+      final elapsedMs = stopwatch.elapsedMilliseconds;
+      stopwatch
+        ..reset()
+        ..start();
+      unawaited(
+        _debugLogger?.log(
+          scope: 'library',
+          event: 'watch_emit',
+          fields: <String, Object?>{
+            'stream': 'recent',
+            'sort': MediaSort.lastPlayed.name,
+            'rowCount': rows.length,
+            'elapsedMs': elapsedMs,
+          },
+        ),
+      );
+      return _mapJoinRows(rows);
+    });
   }
 
   @override

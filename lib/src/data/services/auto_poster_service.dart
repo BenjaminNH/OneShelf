@@ -28,19 +28,48 @@ class AutoPosterService {
     int? durationMs,
   }) async {
     if (posterUri != null && posterUri.trim().isNotEmpty) {
+      await _debugLogger.log(
+        scope: 'auto_poster',
+        event: 'skipped',
+        fields: <String, Object?>{
+          'mediaId': mediaId,
+          'reason': 'poster_exists',
+        },
+      );
       return false;
     }
 
     if (primaryVideoUri == null || primaryVideoUri.trim().isEmpty) {
+      await _debugLogger.log(
+        scope: 'auto_poster',
+        event: 'skipped',
+        fields: <String, Object?>{
+          'mediaId': mediaId,
+          'reason': 'missing_primary_video_uri',
+        },
+      );
       return false;
     }
 
     final stopwatch = Stopwatch()..start();
+    final extractPositionMs = _calculateExtractPosition(durationMs);
+
+    await _debugLogger.log(
+      scope: 'auto_poster',
+      event: 'start',
+      fields: <String, Object?>{
+        'mediaId': mediaId,
+        'durationMs': durationMs,
+        'positionMs': extractPositionMs,
+        'hasAutoPoster': hasAutoPoster,
+        'uriHash': primaryVideoUri.hashCode,
+      },
+    );
 
     try {
       final frameBytes = await _frameExtractor.extractFrame(
         primaryVideoUri,
-        positionMs: _calculateExtractPosition(durationMs),
+        positionMs: extractPositionMs,
       );
 
       if (frameBytes == null || frameBytes.isEmpty) {
@@ -50,6 +79,9 @@ class AutoPosterService {
           fields: <String, Object?>{
             'mediaId': mediaId,
             'elapsedMs': stopwatch.elapsedMilliseconds,
+            'durationMs': durationMs,
+            'positionMs': extractPositionMs,
+            'uriHash': primaryVideoUri.hashCode,
           },
         );
         return false;
@@ -77,6 +109,8 @@ class AutoPosterService {
           'mediaId': mediaId,
           'elapsedMs': stopwatch.elapsedMilliseconds,
           'bytes': frameBytes.length,
+          'durationMs': durationMs,
+          'positionMs': extractPositionMs,
         },
       );
       return true;
@@ -88,6 +122,9 @@ class AutoPosterService {
           'mediaId': mediaId,
           'elapsedMs': stopwatch.elapsedMilliseconds,
           'error': error.toString(),
+          'durationMs': durationMs,
+          'positionMs': extractPositionMs,
+          'uriHash': primaryVideoUri.hashCode,
         },
       );
       return false;

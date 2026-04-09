@@ -4,6 +4,7 @@ import '../../domain/repositories/library_repository.dart';
 import '../../domain/repositories/media_sources_repository.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../../shared/debug/app_debug_logger.dart';
+import '../../shared/media/native_video_debug_bridge.dart';
 import '../../shared/media/video_frame_extractor.dart';
 import '../database/app_database.dart';
 import '../document_tree/docman_document_tree_access.dart';
@@ -30,7 +31,9 @@ final nfoParserProvider = Provider<NfoParser>((ref) {
 });
 
 final videoFrameExtractorProvider = Provider<VideoFrameExtractor>((ref) {
-  return VideoFrameExtractor(ref.watch(appDebugLoggerProvider));
+  final logger = ref.watch(appDebugLoggerProvider);
+  NativeVideoDebugBridge.ensureInitialized(logger);
+  return VideoFrameExtractor(logger);
 });
 
 final autoPosterServiceProvider = Provider<AutoPosterService>((ref) {

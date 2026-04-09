@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../debug/app_debug_logger.dart';
+import 'native_video_debug_bridge.dart';
 
 class LocalVideoMetadata {
   const LocalVideoMetadata({this.durationMs, this.width, this.height});
@@ -109,7 +110,9 @@ class LocalVideoMetadataReader {
 final localVideoMetadataReaderProvider = Provider<LocalVideoMetadataReader>((
   ref,
 ) {
-  return LocalVideoMetadataReader(ref.watch(appDebugLoggerProvider));
+  final logger = ref.watch(appDebugLoggerProvider);
+  NativeVideoDebugBridge.ensureInitialized(logger);
+  return LocalVideoMetadataReader(logger);
 });
 
 final localVideoMetadataProvider =

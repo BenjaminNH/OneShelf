@@ -29,6 +29,8 @@ class VideoFrameExtractor {
           fields: <String, Object?>{
             'status': 'empty_result',
             'elapsedMs': stopwatch.elapsedMilliseconds,
+            'positionMs': positionMs ?? 0,
+            'uriHash': uri.hashCode,
           },
         );
         return null;
@@ -41,6 +43,8 @@ class VideoFrameExtractor {
           'status': 'ok',
           'elapsedMs': stopwatch.elapsedMilliseconds,
           'bytes': result.length,
+          'positionMs': positionMs ?? 0,
+          'uriHash': uri.hashCode,
         },
       );
       return result;
@@ -52,6 +56,9 @@ class VideoFrameExtractor {
           'status': 'platform_error',
           'elapsedMs': stopwatch.elapsedMilliseconds,
           'error': error.message,
+          'details': error.details?.toString(),
+          'positionMs': positionMs ?? 0,
+          'uriHash': uri.hashCode,
         },
       );
       return null;
@@ -63,6 +70,8 @@ class VideoFrameExtractor {
           'status': 'exception',
           'elapsedMs': stopwatch.elapsedMilliseconds,
           'error': error.toString(),
+          'positionMs': positionMs ?? 0,
+          'uriHash': uri.hashCode,
         },
       );
       return null;
