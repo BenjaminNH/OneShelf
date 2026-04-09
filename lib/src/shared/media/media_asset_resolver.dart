@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -250,49 +251,43 @@ final relativeImageFileProvider =
           return targetFile;
         }
 
-        final document = await ref.watch(
-          relativeDocumentProvider(request.assetRequest).future,
-        );
-        if (document == null || !document.exists || !document.isFile) {
-          await logger.log(
-            scope: 'poster',
-            event: 'image_ready',
-            fields: <String, Object?>{
-              'sourceId': request.sourceId,
-              'relativePath': request.relativePath,
-              'variant': variant.name,
-              'status': 'missing_source',
-              'elapsedMs': stopwatch.elapsedMilliseconds,
-            },
+        final materialized = await _posterMaterializationLimiter.run(() async {
+          final document = await ref.watch(
+            relativeDocumentProvider(request.assetRequest).future,
           );
-          return null;
-        }
+          if (document == null || !document.exists || !document.isFile) {
+            return _PosterMaterializationResult.missingSource;
+          }
 
-        final bytes = await _readImageBytes(document);
-        if (bytes == null || bytes.isEmpty) {
-          await logger.log(
-            scope: 'poster',
-            event: 'image_ready',
-            fields: <String, Object?>{
-              'sourceId': request.sourceId,
-              'relativePath': request.relativePath,
-              'variant': variant.name,
-              'status': 'materialize_failed',
-              'elapsedMs': stopwatch.elapsedMilliseconds,
-            },
-          );
-          return null;
-        }
+          final bytes = await _readImageBytes(document);
+          if (bytes == null || bytes.isEmpty) {
+            return _PosterMaterializationResult.materializeFailed;
+          }
 
-        if (targetFile.existsSync()) {
-          await targetFile.delete();
-        }
-        await targetFile.writeAsBytes(bytes, flush: true);
-
-        if (!_isUsableFile(targetFile)) {
           if (targetFile.existsSync()) {
             await targetFile.delete();
           }
+          await targetFile.writeAsBytes(bytes, flush: true);
+
+          if (!_isUsableFile(targetFile)) {
+            if (targetFile.existsSync()) {
+              await targetFile.delete();
+            }
+            return _PosterMaterializationResult.emptyTarget;
+          }
+
+          await targetFile.setLastModified(
+            DateTime.fromMillisecondsSinceEpoch(
+              document.lastModified == 0
+                  ? DateTime.now().millisecondsSinceEpoch
+                  : document.lastModified,
+            ),
+          );
+
+          return _PosterMaterializationResult.success;
+        });
+
+        if (materialized != _PosterMaterializationResult.success) {
           await logger.log(
             scope: 'poster',
             event: 'image_ready',
@@ -300,20 +295,19 @@ final relativeImageFileProvider =
               'sourceId': request.sourceId,
               'relativePath': request.relativePath,
               'variant': variant.name,
-              'status': 'empty_target',
+              'status': switch (materialized) {
+                _PosterMaterializationResult.missingSource => 'missing_source',
+                _PosterMaterializationResult.materializeFailed =>
+                  'materialize_failed',
+                _PosterMaterializationResult.emptyTarget => 'empty_target',
+                _PosterMaterializationResult.success => 'cache_miss',
+              },
               'elapsedMs': stopwatch.elapsedMilliseconds,
             },
           );
           return null;
         }
 
-        await targetFile.setLastModified(
-          DateTime.fromMillisecondsSinceEpoch(
-            document.lastModified == 0
-                ? DateTime.now().millisecondsSinceEpoch
-                : document.lastModified,
-          ),
-        );
         await logger.log(
           scope: 'poster',
           event: 'image_ready',
@@ -323,7 +317,6 @@ final relativeImageFileProvider =
             'variant': variant.name,
             'status': 'cache_miss',
             'elapsedMs': stopwatch.elapsedMilliseconds,
-            'documentCanThumbnail': document.canThumbnail,
             'bytes': targetFile.lengthSync(),
           },
         );
@@ -376,6 +369,8 @@ String buildRelativeImageCacheFileName(
       extension ?? request.variant.fileExtension(normalizedPath);
   return '$digest$normalizedExtension';
 }
+
+final _posterMaterializationLimiter = _AsyncLimiter(4);
 
 class AutoPosterRequest {
   const AutoPosterRequest({required this.mediaId, required this.hasAutoPoster});
@@ -453,5 +448,50 @@ extension on RelativeImageVariant {
       return '.jpg';
     }
     return path.substring(dotIndex);
+  }
+}
+
+enum _PosterMaterializationResult {
+  success,
+  missingSource,
+  materializeFailed,
+  emptyTarget,
+}
+
+class _AsyncLimiter {
+  _AsyncLimiter(this._maxConcurrent);
+
+  final int _maxConcurrent;
+  int _running = 0;
+  final List<Completer<void>> _waiters = <Completer<void>>[];
+
+  Future<T> run<T>(Future<T> Function() action) async {
+    await _acquire();
+    try {
+      return await action();
+    } finally {
+      _release();
+    }
+  }
+
+  Future<void> _acquire() async {
+    if (_running < _maxConcurrent) {
+      _running++;
+      return;
+    }
+
+    final waiter = Completer<void>();
+    _waiters.add(waiter);
+    await waiter.future;
+  }
+
+  void _release() {
+    if (_waiters.isNotEmpty) {
+      final waiter = _waiters.removeAt(0);
+      waiter.complete();
+      return;
+    }
+
+    _running--;
   }
 }
